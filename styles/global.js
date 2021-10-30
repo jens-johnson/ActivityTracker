@@ -13,6 +13,9 @@ const globalStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
+  logActivityScreen: {
+    justifyContent: 'center'
+  },
   text: {
     fontFamily: 'Roboto_400Regular',
     color: colorScheme.primary

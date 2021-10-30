@@ -7,6 +7,6 @@ export default StyleSheet.create({
   },
   tabBarItemStyle: {
     fontFamily: 'Roboto_400Regular',
-    color: 'red'
+    backgroundColor: colorScheme.primary
   }
 });
