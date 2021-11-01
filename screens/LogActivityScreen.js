@@ -1,14 +1,13 @@
 import React from 'react';
-import { Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { globalStyles } from '../styles/global';
-import { Container, ScrollView } from 'native-base';
+import { defaultStyles } from '../styles';
+import { ScrollView } from 'native-base';
 
-import ActivityInputForm from '../components/ActivityInputForm';
+import { ActivityInputForm } from '../components/forms';
 
 export default function LogActivityScreen({ navigation }) {
   return (
-    <SafeAreaView style={globalStyles.logActivityScreen}>
+    <SafeAreaView style={defaultStyles.logActivityScreen}>
       <ScrollView>
         <ActivityInputForm />
       </ScrollView>

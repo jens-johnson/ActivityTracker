@@ -2,15 +2,14 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Container, Image } from 'native-base';
-import { globalStyles } from '../styles/global';
+import { defaultStyles } from '../styles';
 import logo from '../assets/icon.png';
 
 export default function HomeScreen({ navigation }) {
-
   return (
-    <SafeAreaView style={globalStyles.page}>
+    <SafeAreaView style={defaultStyles.page}>
       <Container>
-        <Image source={logo} style={globalStyles.image}/>
+        <Image source={logo} style={defaultStyles.image}/>
         <StatusBar style="auto" />
       </Container>
     </SafeAreaView>

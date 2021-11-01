@@ -2,25 +2,25 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import HomeScreen from '../screens/HomeScreen';
-import OverviewScreen from '../screens/OverviewScreen';
-import LogActivityScreen from '../screens/LogActivityScreen';
-import tabStyle from '../styles/tabs';
-import { colorScheme } from '../styles/global';
+import HomeScreen from '../../screens/HomeScreen';
+import OverviewScreen from '../../screens/OverviewScreen';
+import LogActivityScreen from '../../screens/LogActivityScreen';
+import { navigationStyles } from '../../styles';
+import { colors } from '../../styles';
 
 const stackNavigator = createMaterialTopTabNavigator();
 
-export default function Navigation() {
+export default function NavigationProvider() {
   return (
-    <NavigationContainer>
+    <NavigationContainer style={{ backgroundColor: 'pink' }}>
       <stackNavigator.Navigator
         initialRouteName="Home"
         tabBarPosition="bottom"
         screenOptions={{
-          tabBarStyle: tabStyle.tabBarStyle,
-          tabBarItemStyle: tabStyle.tabBarItemStyle,
-          tabBarActiveTintColor: colorScheme.secondary,
-          tabBarInactiveTintColor: colorScheme.background
+          tabBarStyle: navigationStyles.tabBarStyle,
+          tabBarItemStyle: navigationStyles.tabBarItemStyle,
+          tabBarActiveTintColor: colors.secondary,
+          tabBarInactiveTintColor: colors.background
         }}
       >
         <stackNavigator.Screen

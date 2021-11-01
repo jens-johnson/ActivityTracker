@@ -1,9 +1,10 @@
 import React from 'react';
-import Navigation from './components/Navigation';
+import { NavigationProvider } from './components/navigation';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NativeBaseProvider } from 'native-base';
 import AppLoading from 'expo-app-loading';
 import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
+import { theme } from './styles';
 
 export default function App() {
   let [fontsLoaded] = useFonts({ Roboto_400Regular });
@@ -13,9 +14,9 @@ export default function App() {
   }
   else {
     return (
-      <NativeBaseProvider>
+      <NativeBaseProvider theme={theme}>
         <SafeAreaProvider>
-          <Navigation />
+          <NavigationProvider />
         </SafeAreaProvider>
       </NativeBaseProvider>
     );

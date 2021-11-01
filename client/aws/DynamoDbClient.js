@@ -7,9 +7,10 @@ export default class DynamoDbClient {
     this._client = new AWS.DynamoDB.DocumentClient();
     this._table = tableName;
     this.putItem = this.putItem.bind(this);
+    this.getAllItems = this.getAllItems.bind(this);
+    return this;
   }
   putItem(item) {
-    console.log('putting', item)
     const params = {
       TableName: this._table,
       Item: item
@@ -17,10 +18,15 @@ export default class DynamoDbClient {
     return this._client.put(params)
       .promise()
       .then(() => undefined)
-      .catch((e) => {
-        console.log(e, 'darn')
-        return undefined;
-      })
+  }
+  getAllItems() {
+    let params = {
+      TableName: this._table,
+      Select: 'ALL_ATTRIBUTES'
+    };
+    return this._client.scan(params)
+      .promise()
+      .then(({ Items }) => Items);
   }
 }
 
