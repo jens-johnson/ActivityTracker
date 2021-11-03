@@ -41,10 +41,12 @@ const defaultStyles = StyleSheet.create({
 
 const activityFormStyles = StyleSheet.create({
   formControl: {
+    marginTop: 5,
     marginBottom: 5
   },
   formControlLabel: {
-    color: colors.primary
+    color: colors.primary,
+    fontWeight: 'bold'
   },
   heading: {
     marginTop: 10,

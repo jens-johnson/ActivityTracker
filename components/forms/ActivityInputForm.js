@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { VStack, Center, Text, Heading, Select, Input, Button } from 'native-base';
+import moment from 'moment';
+import { VStack, Center, Text, Heading, Select, Input, Button, Checkbox } from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { TimePicker } from 'react-native-simple-time-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { colors, activityFormStyles } from '../../styles';
 import FormControlItem from './FormControlItem';
+import StravaActivitySelection from './StravaActivitySelection';
 import activityClient from '../../client/activities';
 import stravaClient from '../../client/strava';
 
@@ -21,6 +23,7 @@ export default function ActivityInputForm() {
       },
       distance: '',
       activity: '',
+      stravaActivity: [],
       liftingGroup: '',
       notes: ''
     },
@@ -33,7 +36,8 @@ export default function ActivityInputForm() {
     loading: false,
     error: null,
     uploaded: false,
-    activityOptions: []
+    activityOptions: [],
+    stravaActivities: []
   });
 
   useEffect(async() => {
@@ -41,8 +45,24 @@ export default function ActivityInputForm() {
     const liftingOptionResults = activityOptionResults.find(activity => activity.label === 'Weightlifting').groups;
     setActivityOptions(activityOptionResults);
     setLiftingOptions(liftingOptionResults);
-    const act = await stravaClient.getActivities();
   }, []);
+
+  useEffect(async() => {
+    await setStravaActivities();
+  }, [state.formData.date, state.formData.activity]);
+
+  const setStravaActivities = async () => {
+    if (state.formData.activity) {
+      setState({
+        ...state,
+        stravaActivities: await stravaClient.getActivities({
+          before: moment(state.formData.date).endOf('day').unix(),
+          after: moment(state.formData.date).startOf('day').unix()
+        })
+      });
+    }
+    return;
+  }
 
   const resetState = (values) => {
     setState({
@@ -55,6 +75,7 @@ export default function ActivityInputForm() {
         },
         distance: '',
         activity: '',
+        stravaActivity: [],
         liftingGroup: '',
         notes: ''
       },
@@ -67,9 +88,20 @@ export default function ActivityInputForm() {
       loading: false,
       error: null,
       uploaded: true,
+      stravaActivities: [],
       ...values
     });
   };
+
+  const stravaHandler = (value) => {
+    setState({
+      ...state,
+      formData: {
+        ...state.formData,
+        stravaActivity: value || null
+      }
+    })
+  }
 
   const formSubmissionEnabled = () => {
     return state.formData.activity
@@ -102,7 +134,13 @@ export default function ActivityInputForm() {
             is24Hour={true}
             display="default"
             textColor={colors.primary}
-            onChange={(event, date) => setState({ ...state, formData: { ...state.formData, date } })}
+            onChange={(event, date) => setState({
+              ...state,
+              formData: {
+                ...state.formData,
+                date
+              }
+            })}
           />
         </FormControlItem>
         <FormControlItem isRequired label={'Activity'}>
@@ -128,7 +166,7 @@ export default function ActivityInputForm() {
                 distance: '',
                 liftingGroup: '',
                 notes: ''
-              },
+              }
             })}
           >
             {
@@ -148,6 +186,17 @@ export default function ActivityInputForm() {
                 liftingOptions.map(group => <Select.Item label={group} value={group} key={group} />)
               }
             </Select>
+          </FormControlItem>
+        }
+        {
+          state.stravaActivities.length > 0 &&
+          <FormControlItem label={'Attach Strava Activity:'}>
+            <Checkbox.Group
+              value={state.formData.stravaActivity}
+              onChange={stravaHandler}
+            >
+              <StravaActivitySelection activities={state.stravaActivities} />
+            </Checkbox.Group>
           </FormControlItem>
         }
         {
@@ -189,18 +238,19 @@ export default function ActivityInputForm() {
           isLoading={state.loading}
           onPress={() => submitFormData()}
           startIcon={<Icon name={'upload'} color={colors.primary} size={'sm'} />}
+          style={{ marginTop: 5 }}
         >
           Submit
         </Button>
         {
           !state.loading && state.error && state.uploaded &&
-          <Text style={{ justifyContent: 'center' }}>
+          <Text style={{ justifyContent: 'center', color: colors.primary, marginTop: 5 }}>
             Upload failed due to error: { state.error }
           </Text>
         }
         {
           !state.loading && state.uploaded && isFormEmpty() &&
-          <Text style={{ justifyContent: 'center' }}>
+          <Text style={{ justifyContent: 'center', color: colors.primary, marginTop: 5 }}>
             Activity uploaded.
           </Text>
         }

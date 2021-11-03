@@ -14,21 +14,15 @@ const generateQueryString = (queryParams) => {
 const getActivities = (params) => {
   return authenticate()
     .then(access_token => axios.get(`${STRAVA_API_URL}/athlete/activities?${generateQueryString({...params, access_token: access_token})}`))
-    .then(res => {
-      console.log('activities', res)
-      return [];
-    })
-    .catch(e => {
-      console.log(e, 'err')
-      return [];
-    });
+    .then(({ data }) => data)
+    .catch(_ => []);
 }
 
 const authenticate = () => {
   const authUrlWithParams = `${STRAVA_AUTH_URL}?client_id=${STRAVA_CLIENT_ID}&client_secret=${STRAVA_CLIENT_SECRET}&refresh_token=${STRAVA_REFRESH_TOKEN}&grant_type=refresh_token`;
   return axios.post(authUrlWithParams)
     .then(({ data: { access_token } }) => access_token)
-    .catch(_ => null);
+    .catch(_ => undefined);
 }
 
 export default {
