@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import moment from 'moment';
 import { VStack, Center, Text, Heading, Select, Input, Button, Checkbox } from 'native-base';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { TimePicker } from 'react-native-simple-time-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { colors, activityFormStyles } from '../../styles';
+import moment from 'moment';
 import FormControlItem from './FormControlItem';
 import StravaActivitySelection from './StravaActivitySelection';
-import activityClient from '../../client/activities';
+import activityClient from '../../client/activity';
 import stravaClient from '../../client/strava';
+import { colors, activityFormStyles } from '../../styles';
 
+/**
+ * Functional component containing activity upload form
+ *
+ * @return {JSX.Element}
+ * @constructor
+ */
 export default function ActivityInputForm() {
   const [activityOptions, setActivityOptions] = useState([]);
   const [liftingOptions, setLiftingOptions] = useState([]);
@@ -51,6 +57,11 @@ export default function ActivityInputForm() {
     await setStravaActivities();
   }, [state.formData.date, state.formData.activity]);
 
+  /**
+   * Retrieves Strava activities from the Strava client and updates the state with them
+   *
+   * @return {Promise<void>}
+   */
   const setStravaActivities = async () => {
     if (state.formData.activity) {
       setState({
@@ -61,9 +72,13 @@ export default function ActivityInputForm() {
         })
       });
     }
-    return;
   }
 
+  /**
+   * Resets the state with optional given values
+   *
+   * @param {Object} values
+   */
   const resetState = (values) => {
     setState({
       formData: {
@@ -93,6 +108,11 @@ export default function ActivityInputForm() {
     });
   };
 
+  /**
+   * Sets the state with a given Strava activity selection
+   *
+   * @param {StravaActivity[]} value
+   */
   const stravaHandler = (value) => {
     setState({
       ...state,
@@ -103,6 +123,11 @@ export default function ActivityInputForm() {
     })
   }
 
+  /**
+   * Returns true/false if form submission is enabled or not (either a lifting activity is selected, or non-lifting activity and duration and distance)
+   *
+   * @return {boolean}
+   */
   const formSubmissionEnabled = () => {
     return state.formData.activity
       ? state.formData.activity === 'Weightlifting'
@@ -111,11 +136,21 @@ export default function ActivityInputForm() {
       : false;
   };
 
+  /**
+   * Returns true/false if the form hasn't been modified on input
+   *
+   * @return {boolean}
+   */
   const isFormEmpty = () => {
     return !state.formData.activity
       && !state.formData.notes
   };
 
+  /**
+   * Calls the activity client to upload form data
+   *
+   * @return {Promise<void>}
+   */
   const submitFormData = async() => {
     setState({ ...state, loading: true });
     const error = await activityClient.upload(state.formData);

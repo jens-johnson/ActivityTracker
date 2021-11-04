@@ -10,6 +10,12 @@ import { colors } from '../../styles';
 
 const stackNavigator = createMaterialTopTabNavigator();
 
+/**
+ * Creates a tap navigator over the applications screens
+ *
+ * @return {JSX.Element}
+ * @constructor
+ */
 export default function NavigationProvider() {
   return (
     <NavigationContainer style={{ backgroundColor: 'pink' }}>

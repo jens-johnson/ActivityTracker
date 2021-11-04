@@ -55,6 +55,15 @@ const activityFormStyles = StyleSheet.create({
   }
 });
 
+const overviewScreenStyles = StyleSheet.create({
+  heading: {
+    marginBottom: 5,
+    marginTop: 10,
+    color: colors.primary,
+    textAlign: 'center'
+  }
+});
+
 const navigationStyles = StyleSheet.create({
   tabBarStyle: {
     backgroundColor: colors.primary
@@ -70,5 +79,6 @@ export {
   theme,
   defaultStyles,
   activityFormStyles,
+  overviewScreenStyles,
   navigationStyles
 };
