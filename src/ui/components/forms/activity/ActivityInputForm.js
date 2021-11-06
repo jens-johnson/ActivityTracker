@@ -3,12 +3,12 @@ import { VStack, Center, Text, Heading, Select, Input, Button, Checkbox } from '
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import { TimePicker } from 'react-native-simple-time-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import moment from 'moment';
-import FormControlItem from './FormControlItem';
+import { FormControlItem } from 'ui/components/forms';
 import StravaActivitySelection from './StravaActivitySelection';
-import activityClient from '../../client/activity';
-import stravaClient from '../../client/strava';
-import { colors, activityFormStyles } from '../../styles';
+import activityClient from 'client/activity';
+import stravaClient from 'client/strava';
+import { colors, activityFormStyles } from 'ui/styles';
+import { dateTypeService } from 'service/types';
 
 /**
  * Functional component containing activity upload form
@@ -67,8 +67,8 @@ export default function ActivityInputForm() {
       setState({
         ...state,
         stravaActivities: await stravaClient.getActivities({
-          before: moment(state.formData.date).endOf('day').unix(),
-          after: moment(state.formData.date).startOf('day').unix()
+          before: dateTypeService.startOf(state.formData.date, 'day'),
+          after: dateTypeService.endOf(state.formData.date, 'day')
         })
       });
     }
@@ -109,21 +109,6 @@ export default function ActivityInputForm() {
   };
 
   /**
-   * Sets the state with a given Strava activity selection
-   *
-   * @param {StravaActivity[]} value
-   */
-  const stravaHandler = (value) => {
-    setState({
-      ...state,
-      formData: {
-        ...state.formData,
-        stravaActivity: value || null
-      }
-    })
-  }
-
-  /**
    * Returns true/false if form submission is enabled or not (either a lifting activity is selected, or non-lifting activity and duration and distance)
    *
    * @return {boolean}
@@ -152,8 +137,12 @@ export default function ActivityInputForm() {
    * @return {Promise<void>}
    */
   const submitFormData = async() => {
+    let error = undefined;
     setState({ ...state, loading: true });
-    const error = await activityClient.upload(state.formData);
+    await activityClient.upload(state.formData)
+      .catch(e => {
+        error = e;
+      });
     resetState({ loading: false, error, uploaded: true });
   };
 
@@ -228,7 +217,13 @@ export default function ActivityInputForm() {
           <FormControlItem label={'Attach Strava Activity:'}>
             <Checkbox.Group
               value={state.formData.stravaActivity}
-              onChange={stravaHandler}
+              onChange={value => setState({
+                ...state,
+                formData: {
+                  ...state.formData,
+                  stravaActivity: value || null
+                }
+              })}
             >
               <StravaActivitySelection activities={state.stravaActivities} />
             </Checkbox.Group>

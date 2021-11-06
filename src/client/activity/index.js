@@ -1,7 +1,7 @@
-import activityService from '../../service/activity';
-import { getLogger } from '../../service/logging';
+import activityService from 'service/activity';
+import { getLogger } from 'service/logging';
 
-const logger = getLogger('Activity Client');
+const logger = getLogger('activityClient');
 
 /**
  * Retrieves an array of tracker activity options from the DB
@@ -38,7 +38,7 @@ const listActivityOptions = () => {
  * Uploads an activity to the DB
  *
  * @param {TrackerActivity} activity
- * @return {Promise<undefined | {errorMessage: string, errorCode: string, message: string}>}
+ * @return {Promise<void>}
  */
 const upload = (activity) => {
   logger.info({
@@ -60,13 +60,10 @@ const upload = (activity) => {
         message: 'Activity failed to upload',
         event: 'activityClient.upload',
         success: false,
+        error,
         activity
       });
-      return {
-        message: 'Failed to upload activity',
-        errorMessage: error.message || 'Unknown error',
-        errorCode: error.code
-      };
+      throw error;
     });
 };
 

@@ -1,12 +1,9 @@
-import * as React from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import HomeScreen from '../../screens/HomeScreen';
-import OverviewScreen from '../../screens/OverviewScreen';
-import LogActivityScreen from '../../screens/LogActivityScreen';
-import { navigationStyles } from '../../styles';
-import { colors } from '../../styles';
+import Screens from 'ui/screens';
+import { navigationStyles, colors } from 'ui/styles';
 
 const stackNavigator = createMaterialTopTabNavigator();
 
@@ -20,8 +17,8 @@ export default function NavigationProvider() {
   return (
     <NavigationContainer style={{ backgroundColor: 'pink' }}>
       <stackNavigator.Navigator
-        initialRouteName="Home"
-        tabBarPosition="bottom"
+        initialRouteName='Home'
+        tabBarPosition='bottom'
         screenOptions={{
           tabBarStyle: navigationStyles.tabBarStyle,
           tabBarItemStyle: navigationStyles.tabBarItemStyle,
@@ -30,26 +27,26 @@ export default function NavigationProvider() {
         }}
       >
         <stackNavigator.Screen
-          name="Log Activity"
-          component={LogActivityScreen}
+          name='Log Activity'
+          component={Screens.LogActivity}
           options={{
-            tabBarLabel: "Log Activity",
+            tabBarLabel: 'Log Activity',
             tabBarIcon: ({ color, size }) => <Icon name={'pencil-alt'} color={color} size={size} />
           }}
         />
         <stackNavigator.Screen
-          name="Home"
-          component={HomeScreen}
+          name='Home'
+          component={Screens.Home}
           options={{
-            tabBarLabel: "Home",
+            tabBarLabel: 'Home',
             tabBarIcon: ({ color, size }) => <Icon name={'home'} color={color} size={size} />
           }}
         />
         <stackNavigator.Screen
-          name="Overview"
-          component={OverviewScreen}
+          name='Overview'
+          component={Screens.Overview}
           options={{
-            tabBarLabel: "Overview",
+            tabBarLabel: 'Overview',
             tabBarIcon: ({ color, size }) => <Icon name={'running'} color={color} size={size} />
           }}
         />

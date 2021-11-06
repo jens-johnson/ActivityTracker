@@ -1,24 +1,16 @@
 import React from 'react';
-import { NavigationProvider } from './components/navigation';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { NativeBaseProvider } from 'native-base';
-import AppLoading from 'expo-app-loading';
-import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
-import { theme } from './styles';
+import { Application } from 'ui/components';
+import { getLogger } from 'service/logging';
 
+const logger = getLogger('expo-application');
+
+/**
+ * Entry point for Expo application
+ *
+ * @return {JSX.Element} - The root application
+ * @constructor
+ */
 export default function App() {
-  let [fontsLoaded] = useFonts({ Roboto_400Regular });
-
-  if (!fontsLoaded) {
-    return <AppLoading/>;
-  }
-  else {
-    return (
-      <NativeBaseProvider theme={theme}>
-        <SafeAreaProvider>
-          <NavigationProvider />
-        </SafeAreaProvider>
-      </NativeBaseProvider>
-    );
-  }
+  logger.info('Application initialized');
+  return <Application />
 }

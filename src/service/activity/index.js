@@ -23,9 +23,11 @@
 import 'react-native-get-random-values';
 import 'react-native-url-polyfill/auto';
 import { v4 as uuidV4 } from 'uuid';
-import AWSClient from '../../client/aws';
+import AWSClient from 'client/aws';
+import { getLogger } from 'service/logging';
 import { AWS_DYNAMODB_ACTIVITIES_TABLE as activitiesTable, AWS_DYNAMO_DB_ACTIVITY_OPTIONS_TABLE as activityOptionsTable } from '@env';
 
+const logger = getLogger('activityService');
 const activitiesTableDynamoDbClient = AWSClient.dynamoDb(activitiesTable);
 const activityOptionsTableDynamoDbClient = AWSClient.dynamoDb(activityOptionsTable);
 
@@ -37,7 +39,16 @@ const activityOptionsTableDynamoDbClient = AWSClient.dynamoDb(activityOptionsTab
  * @example
  * toSeconds({ hours: 1, minutes: 30, seconds: 20 }) // returns 5420
  */
-const toSeconds = duration => (((duration.hours * 60) + duration.minutes) * 60) + duration.seconds;
+const toSeconds = (duration) => {
+  const durationInSeconds = (((duration.hours * 60) + duration.minutes) * 60) + duration.seconds;
+  logger.debug({
+    message: 'Converting duration to seconds',
+    event: 'activityService.toSeconds',
+    duration,
+    result: durationInSeconds
+  });
+  return durationInSeconds;
+};
 
 /**
  * Converts string to a readable label
@@ -47,21 +58,39 @@ const toSeconds = duration => (((duration.hours * 60) + duration.minutes) * 60) 
  * @example
  * toLabel('BACK_AND_BICEPS') // returns 'Back & biceps'
  */
-const toLabel = string => string.charAt(0).toUpperCase() + string.substr(1).toLowerCase()
-  .replace(/_/g, ' ')
-  .replace(/and/g, '&');
+const toLabel = (string) => {
+  const label = string.charAt(0).toUpperCase() + string.substr(1).toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/and/g, '&');
+  logger.debug({
+    message: 'Converting string to label',
+    event: 'activityService.toLabel',
+    string,
+    result: label
+  });
+  return label;
+};
 
 /**
  * Converts a labelled string to an upper-cased DB representation
  *
- * @param {string} string - The input string (i.e. 'Back & biceps')
+ * @param {string} label - The input string (i.e. 'Back & biceps')
  * @return {string} - The transformed string (i.e. 'BACK_AND_BICEPS')
  * @example
  * toLabel('Back & biceps') // returns 'BACK_AND_BICEPS'
  */
-const fromLabel = string => string.toUpperCase()
-  .replace(/ /g, '_')
-  .replace(/&/g, 'AND');
+const fromLabel = (label) => {
+  const result = label.toUpperCase()
+    .replace(/ /g, '_')
+    .replace(/&/g, 'AND');
+  logger.debug({
+    message: 'Converting label to string',
+    event: 'activityService.fromLabel',
+    label,
+    result
+  });
+  return result;
+};
 
 /**
  *
@@ -84,13 +113,21 @@ const toActivityItem = (activity) => {
   } else {
     delete activity.liftingGroup;
   }
-  return {
+  const result = {
     ...activity,
     id: uuidV4(),
     activity: fromLabel(activity.activity),
     date: new Date(activity.date).valueOf()
-  }
-}
+  };
+  logger.debug({
+    message: 'Label to string',
+    event: 'activityService.toActivityItem',
+    activity,
+    result
+  });
+  // noinspection JSValidateTypes
+  return result;
+};
 
 /**
  * Transforms a list of tracker activity options
@@ -99,11 +136,18 @@ const toActivityItem = (activity) => {
  * @return {Object[]} - The tracker activity options transformed with labels
  */
 const toActivityOptionsItems = (items) => {
-  return items.map(item => ({
+  const result = items.map(item => ({
     ...item,
     ...(item.groups) && { groups: item.groups.values.map(group => toLabel(group)) },
     label: toLabel(item.label),
   }));
+  logger.debug({
+    message: 'Converting activity options to list',
+    event: 'activityService.toActivityOptionsItems',
+    items,
+    result
+  });
+  return result;
 }
 
 /**
@@ -112,10 +156,32 @@ const toActivityOptionsItems = (items) => {
  * @return {Promise<Object[]>}
  */
 const listActivityOptions = () => {
+  logger.info({
+    message: 'Listing activity options',
+    event: 'activityService.listActivityOptions',
+  });
   return Promise.resolve()
     .then(activityOptionsTableDynamoDbClient.getAllItems)
-    .then(toActivityOptionsItems);
-}
+    .then(toActivityOptionsItems)
+    .then(activityOptionItems => {
+      logger.debug({
+        message: 'Returning converted activity option items',
+        event: 'activityService.listActivityOptions',
+        success: true,
+        activityOptionItems
+      });
+      return activityOptionItems;
+    })
+    .catch(error => {
+      logger.error({
+        message: 'Failed to return activity option items',
+        event: 'activityService.listActivityOptions',
+        success: false,
+        error
+      });
+      return [];
+    });
+};
 
 /**
  * Uploads an activity to the DB
@@ -124,10 +190,31 @@ const listActivityOptions = () => {
  * @return {Promise<undefined>}
  */
 const uploadActivity = (activity) => {
+  logger.info({
+    message: 'Uploading activity',
+    event: 'activityService.uploadActivity',
+    activity
+  });
   return Promise.resolve(activity)
     .then(toActivityItem)
-    .then(activitiesTableDynamoDbClient.putItem);
-}
+    .then(activitiesTableDynamoDbClient.putItem)
+    .then(() => {
+      logger.debug({
+        message: 'Activity uploaded',
+        event: 'activityService.uploadActivity',
+        success: true
+      });
+    })
+    .catch((error) => {
+      logger.debug({
+        message: 'Activity failed to upload',
+        event: 'activityService.uploadActivity',
+        success: false,
+        error
+      });
+      throw error;
+    });
+};
 
 export default {
   uploadActivity,

@@ -39,7 +39,7 @@ const defaultStyles = StyleSheet.create({
   }
 });
 
-const activityFormStyles = StyleSheet.create({
+const formStyles = StyleSheet.create({
   formControl: {
     marginTop: 5,
     marginBottom: 5
@@ -47,7 +47,10 @@ const activityFormStyles = StyleSheet.create({
   formControlLabel: {
     color: colors.primary,
     fontWeight: 'bold'
-  },
+  }
+});
+
+const activityFormStyles = StyleSheet.create({
   heading: {
     marginTop: 10,
     marginBottom: 5,
@@ -78,6 +81,7 @@ export {
   colors,
   theme,
   defaultStyles,
+  formStyles,
   activityFormStyles,
   overviewScreenStyles,
   navigationStyles

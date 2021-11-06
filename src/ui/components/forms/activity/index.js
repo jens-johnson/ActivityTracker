@@ -1,5 +1,3 @@
 import ActivityInputForm from './ActivityInputForm';
 
-export {
-  ActivityInputForm
-};
+export default ActivityInputForm;
