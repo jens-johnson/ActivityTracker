@@ -1,24 +1,42 @@
-const ACTIVITY_TYPE_CONVERSIONS = {
+const ACTIVITY_CONVERSIONS = {
   Ride: {
     conversionFactor: 0.00062137119224,
-    units: 'mi'
+    units: 'mi',
+    trackerActivityKey: 'BK',
+    icon: 'biking'
   },
   Run: {
     conversionFactor: 0.00062137119224,
-    units: 'mi'
+    units: 'mi',
+    trackerActivityKey: 'RN',
+    icon: 'running'
   },
   Swim: {
     conversionFactor: 1,
-    units: 'm'
+    units: 'm',
+    trackerActivityKey: 'SWM',
+    icon: 'swimmer'
   },
   VirtualRide: {
     conversionFactor: 0.00062137119224,
-    units: 'mi'
+    units: 'mi',
+    trackerActivityKey: 'BK',
+    icon: 'biking'
   },
   VirtualRun: {
     conversionFactor: 0.00062137119224,
-    units: 'mi'
+    units: 'mi',
+    trackerActivityKey: 'RN',
+    icon: 'running'
   }
 };
 
-export default ACTIVITY_TYPE_CONVERSIONS;
+/**
+ * Converts a Strava Activity Type to an object containing a conversion factor for the Strava activity distance, distance units, TrackerActivityOption UID, and icon
+ *
+ * @param {string} stravaActivityType
+ * @return {Object|undefined}
+ */
+export const convertActivity = (stravaActivityType) => {
+  return ACTIVITY_CONVERSIONS[stravaActivityType];
+}

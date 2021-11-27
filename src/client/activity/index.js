@@ -3,6 +3,16 @@ import { getLogger } from 'service/logging';
 
 const logger = getLogger('activityClient');
 
+// TODO: Document
+const listActivitiesByType = (query) => {
+  logger.info({
+    message: 'Listing activities by type',
+    event: 'activityClient.listActivityOptions',
+    query
+  });
+  return activityService.listActivitiesByType(query);
+}
+
 /**
  * Retrieves an array of tracker activity options from the DB
  *
@@ -67,7 +77,40 @@ const upload = (activity) => {
     });
 };
 
+/**
+ * Retrieves activity summaries from the DB
+ *
+ * @return {*}
+ */
+const retrieveActivitySummaries = () => {
+  logger.info({
+    message: 'Retrieving activity summaries',
+    event: 'activityClient.retrieveActivitySummaries',
+  });
+  return Promise.all(activityService.retrieveActivitySummaries())
+    .then((summaries) => {
+      logger.debug({
+        message: 'Retrieved activity summaries',
+        event: 'activityClient.retrieveActivitySummaries',
+        success: true,
+        summaries
+      });
+      return summaries;
+    })
+    .catch(error => {
+      logger.error({
+        message: 'Failed to retrieve activity summaries',
+        event: 'activityClient.retrieveActivitySummaries',
+        success: false,
+        error
+      });
+      return [];
+    });
+}
+
 export default {
   upload,
-  listActivityOptions
+  listActivityOptions,
+  listActivitiesByType,
+  retrieveActivitySummaries
 };

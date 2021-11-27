@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'native-base';
+import activityClient from 'client/activity';
 import { defaultStyles } from 'ui/styles';
 import ActivityInputForm from 'ui/components/forms/activity';
 
@@ -11,10 +12,19 @@ import ActivityInputForm from 'ui/components/forms/activity';
  * @constructor
  */
 export default function LogActivityScreen() {
+  const [state, setState] = useState({
+    activityOptions: []
+  });
+
+  useEffect(async() => {
+    activityClient.listActivityOptions()
+      .then(activityOptions => setState({ activityOptions }));
+  }, []);
+
   return (
     <SafeAreaView style={defaultStyles.logActivityScreen}>
       <ScrollView>
-        <ActivityInputForm />
+        <ActivityInputForm activityOptions={state.activityOptions} />
       </ScrollView>
     </SafeAreaView>
   )
