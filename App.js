@@ -11,6 +11,6 @@ const logger = getLogger('expo-application');
  * @constructor
  */
 export default function App() {
-  logger.info('Application initialized');
+  logger.info({ message:'Application initialized' });
   return <Application />
 }

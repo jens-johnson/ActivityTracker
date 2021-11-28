@@ -15,8 +15,8 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={defaultStyles.page}>
       <Container>
-        <Image source={logo} style={defaultStyles.image}/>
-        <StatusBar style="auto" />
+        <Image alt={''} source={logo} style={defaultStyles.image} />
+        <StatusBar style={'auto'} />
       </Container>
     </SafeAreaView>
   );

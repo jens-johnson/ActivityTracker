@@ -1,11 +1,11 @@
 import React from 'react';
 import { FormControl, Text } from 'native-base';
-import { formStyles } from '../../styles';
+import { formStyles } from 'ui/styles';
 
 /**
  * Functional component creating a <FormControl /> wrapper and label
  *
- * @param {Object} props
+ * @param {Object} props - Component props
  * @param {boolean} props.isRequired - True/false if the form control is required or not
  * @param {string} props.label - Label for the form control
  * @param {JSX.Element[]} props.children - Child components
@@ -18,5 +18,5 @@ export default function FormControlItem(props) {
       <FormControl.Label><Text style={formStyles.formControlLabel}>{ props.label }</Text></FormControl.Label>
       { props.children }
     </FormControl>
-  )
-}
+  );
+};

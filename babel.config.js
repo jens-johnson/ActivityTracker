@@ -21,7 +21,7 @@ module.exports = function(api) {
             ui: './src/ui',
             client: './src/client',
             service: './src/service',
-            assets: './src/assets'
+            assets: './src/assets',
           },
         },
       ]

@@ -5,7 +5,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "docs:render-puml": "plantuml ./docs/**.puml -x ./docs/_config/**.puml"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity": "^3.24.0",
@@ -13,6 +14,7 @@
     "@aws-sdk/credential-provider-cognito-identity": "^3.24.0",
     "@expo-google-fonts/dev": "^0.2.0",
     "@expo-google-fonts/roboto": "^0.2.0",
+    "@expo/vector-icons": "^12.0.5",
     "@react-native-community/datetimepicker": "3.5.2",
     "@react-native-picker/picker": "1.16.1",
     "@react-navigation/material-top-tabs": "^6.0.1",
@@ -24,15 +26,16 @@
     "expo-app-loading": "^1.1.2",
     "expo-font": "~9.2.1",
     "expo-status-bar": "~1.0.4",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "native-base": "^3.0.7",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "^0.64.2",
     "react-native-calendar-picker": "^7.1.2",
+    "react-native-calendars": "^1.1269.0",
     "react-native-dotenv": "^3.1.1",
     "react-native-get-random-values": "~1.7.0",
-    "react-native-logs": "^3.0.4",
     "react-native-pager-view": "5.0.12",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
@@ -47,7 +50,8 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0"
+    "@babel/core": "^7.9.0",
+    "react-native-logs": "^3.0.4"
   },
   "private": true
 }

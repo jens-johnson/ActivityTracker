@@ -52,5 +52,5 @@ export default function NavigationProvider() {
         />
       </stackNavigator.Navigator>
     </NavigationContainer>
-  )
+  );
 }

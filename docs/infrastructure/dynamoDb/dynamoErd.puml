@@ -1,0 +1,26 @@
+@startuml
+!include ../../_config/config.puml
+skinparam line {
+  Color white
+}
+entity Activities {
+  * **id (PK)** : string
+  * **activity (FK)** : string
+  * liftingGroup : string
+  * distance : number
+  * duration : number
+  * stravaActivity : string[]
+  * notes : string
+}
+
+entity ActivityOptions {
+  * **id (PK)** : string
+  * **activityOptionUid (SK)** : string
+  * **distance** : boolean
+  * **duration** : boolean
+  * groups : string[]
+  * label : string
+}
+
+Activities ||--|| ActivityOptions
+@enduml

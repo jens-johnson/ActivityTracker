@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { LogBox } from 'react-native';
 import AppLoading from 'expo-app-loading';
 import { NativeBaseProvider } from 'native-base';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Roboto_400Regular } from '@expo-google-fonts/roboto';
 import { getLogger } from 'service/logging';
+import utils from 'ui/utils';
 import { NavigationProvider } from 'ui/components/navigation';
 import { theme } from 'ui/styles';
 
@@ -17,13 +17,15 @@ const logger = getLogger('core-application');
  * @constructor
  */
 export default function Application() {
-  logger.info('Application initialized');
+  logger.info({
+    message:'Application initialized'
+  });
 
   useEffect(() => {
-    LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
+    utils.dev.suppressWarnings();
   }, []);
 
-  let [fontsLoaded] = useFonts({ Roboto_400Regular });
+  let [ fontsLoaded ] = useFonts({ Roboto_400Regular });
 
   if (!fontsLoaded) {
     return <AppLoading/>;
