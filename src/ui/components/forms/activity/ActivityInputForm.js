@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { VStack, Center, Text, Heading, Select, Input, Button, Radio } from 'native-base';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import { VStack, Center, Text, Heading, Select, Input, Button, Radio, Icon } from 'native-base';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { TimePicker } from 'react-native-simple-time-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { FormControlItem } from 'ui/components/forms';
@@ -198,7 +198,7 @@ export default function ActivityInputForm({ activityOptions }) {
               onValueChange={liftingGroup => setFormData({ liftingGroup })}
             >
               {
-                [ ...activityOptions ].find(activity => activity.activityUid === 'WL')?.groups.map(group => <Select.Item label={group.label} value={group.uid} key={group.uid} />)
+                [ ...activityOptions ].find(activity => activity.activityUid === 'WL')?.groups?.map(group => <Select.Item label={group.label} value={group.uid} key={group.uid} />)
               }
             </Select>
           </FormControlItem>
@@ -253,8 +253,9 @@ export default function ActivityInputForm({ activityOptions }) {
           isDisabled={!formSubmissionEnabled()}
           isLoading={state.loading}
           onPress={() => submitFormData()}
-          startIcon={<Icon name={'upload'} color={colors.primary} size={8} />}
+          startIcon={<Icon as={FontAwesome5} name={'upload'} color={colors.primary} size={'xs'} />}
           style={{ marginTop: 5 }}
+          colorScheme={'secondary'}
         >
           Submit
         </Button>
@@ -272,5 +273,5 @@ export default function ActivityInputForm({ activityOptions }) {
         }
       </Center>
     </VStack>
-  )
+  );
 }

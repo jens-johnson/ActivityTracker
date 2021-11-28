@@ -1,4 +1,4 @@
-import { logger, configLoggerType } from 'react-native-logs';
+import { logger } from 'react-native-logs';
 import { JSONConsoleTransport } from './transports';
 
 const loggingConfig = {

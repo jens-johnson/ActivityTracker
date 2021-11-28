@@ -13,6 +13,12 @@ const ansiColors = [
 ];
 const colorEnd = "\x1B[0m";
 
+/**
+ * Transport to pretty-print JSON console logs
+ *
+ * @param props
+ * @constructor
+ */
 export const JSONConsoleTransport = (props) => {
   console.log(`${ansiColors[props?.level?.severity]}${new Date().toLocaleString()} | ${props?.level?.text.toUpperCase()} | ${props?.extension}${colorEnd}`)
   console.log(`${ansiColors[props?.level?.severity]}${JSON.stringify(props?.rawMsg, null, 2)}${colorEnd}`);

@@ -1,13 +1,24 @@
 import React from 'react';
-import { CalendarList, E } from 'react-native-calendars';
+import { CalendarList } from 'react-native-calendars';
 import { colors } from 'ui/styles';
 
+// Maximum number of months to display past and present from the current date
 const MAX_MONTH_RANGE = 12;
+
+// Dot styling for calendar marking
 const DOTS = {
   cardio: { key: 'cardio', color: colors.primary },
   lifting: { key: 'lifting', color: colors.secondary }
 };
 
+/**
+ * Functional activity calendar component for overview screen
+ *
+ * @param props - Component props
+ * @param props.activities - Mapping of dates to lifting/cardio activities
+ * @return {JSX.Element}
+ * @constructor
+ */
 export default function ActivitiesCalendar({ activities }) {
   const marked = activities;
   Object.keys(activities).map(date => {
@@ -43,5 +54,5 @@ export default function ActivitiesCalendar({ activities }) {
         }
       }}
     />
-  )
+  );
 };

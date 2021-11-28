@@ -76,4 +76,4 @@ export default class DynamoDbClient {
       .promise()
       .then(({ Items }) => Items);
   };
-}
+};

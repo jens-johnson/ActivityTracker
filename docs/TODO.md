@@ -1,12 +1,26 @@
 # TODO
 
-Last Updated: 11-20-21
+Last Updated: 11-28-21
 ---
 
-- [] Restructure activity object
-  - `label` attr instead of `activity`; representing `activityUid`
-  - Add `liftingGroupUid` to `liftingGroup`
-- [] Class diagrams
-  - i.e. For `TrackerActivity` and other typedefs
-- [] Custom errors
-- [] Production logging transport
+- **Search**
+  - [ ] Implement search functionality
+    - i.e. Search/filter activities
+- **Upload**
+  - [ ] Activity validation
+    - Verifying if an activity has been uploaded already
+    - Sanity check against form data
+      - i.e. Reasonable distance, duration, etc.
+- **Overview**
+  - [ ] Improved activity calendar
+    - Ability to see activities by day
+    - React native `<Agenda />` component?
+- **Misc. Improvements**
+  - [ ] Linting
+  - [ ] Testing
+  - [ ] Docs
+  - [ ] Better CRUD operations
+    - Update/delete activities
+    - CRUD activity options
+  
+

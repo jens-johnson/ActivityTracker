@@ -9,10 +9,11 @@ import { getLogger } from 'service/logging';
 import { toGetActivitiesResponse } from 'service/strava';
 import { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET, STRAVA_REFRESH_TOKEN } from '@env';
 
-const logger = getLogger('stravaClient');
 const STRAVA_BASE_URL = 'https://www.strava.com';
 const STRAVA_AUTH_URL = new URL('/oauth/token', STRAVA_BASE_URL);
 const STRAVA_API_URL = new URL('/api/v3', STRAVA_BASE_URL);
+
+const logger = getLogger('stravaClient');
 
 
 /**

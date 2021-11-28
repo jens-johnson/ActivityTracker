@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ScrollView, Center } from 'native-base';
+import {ScrollView, Center, Heading} from 'native-base';
 import { useIsFocused } from '@react-navigation/native';
 import activityClient from 'client/activity';
 import { dateTypeService } from 'service/types';
 import { ActivitySummary, ActivitiesCalendar } from 'ui/components/overview';
-import { defaultStyles } from 'ui/styles';
+import {defaultStyles, overviewScreenStyles} from 'ui/styles';
 
 /**
  * Overview screen functional component
@@ -22,7 +22,7 @@ export default function OverviewScreen() {
   useEffect(async() => {
     setState({
       summaries: await activityClient.retrieveActivitySummaries(),
-      activitiesForThisPeriod: await activityClient.listActivitiesByType({
+      activitiesForThisPeriod: await activityClient.retrieveActivitiesByType({
         before: dateTypeService.endOf(new Date(), 'year'),
         after: dateTypeService.startOf(new Date(), 'year')
       })
@@ -30,7 +30,8 @@ export default function OverviewScreen() {
   }, [ isFocused ]);
   return (
     <SafeAreaView style={defaultStyles.page}>
-      <ScrollView>
+      <Heading fontSize={'4xl'} mt={2} mb={5} style={overviewScreenStyles.heading}>Activities Overview</Heading>
+      <ScrollView mt={5}>
         <ActivitySummary summaries={state.summaries}/>
       </ScrollView>
       <ScrollView>
@@ -39,5 +40,5 @@ export default function OverviewScreen() {
         </Center>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }

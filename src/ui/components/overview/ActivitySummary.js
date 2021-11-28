@@ -1,6 +1,6 @@
 import React from 'react';
-import {Heading, VStack, Text, Center, HStack, CircularProgress, Square, Icon, Progress, Box} from 'native-base';
-import { overviewScreenStyles, colors } from 'ui/styles';
+import { VStack, Text, Center, HStack, Icon, Progress, Box } from 'native-base';
+import { colors } from 'ui/styles';
 import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 
 /**
@@ -10,7 +10,7 @@ import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
  * @return {string}
  */
 function displayDuration({ hours, minutes }) {
-  return `${hours > 0 ? `${hours} hr ` : ''}${minutes} min`
+  return `${hours > 0 ? `${hours}hr ` : ''}${minutes}min`;
 }
 
 /**
@@ -20,14 +20,14 @@ function displayDuration({ hours, minutes }) {
  * @return {string}
  */
 function displayDistance({ value, units }) {
-  return `${value.toFixed(2)} ${units}`
+  return `${value.toFixed(2)} ${units}`;
 }
 
 /**
  * Functional component for a summary item
  *
  * @param {Object} props - Component props
- * @param {Object} summary - Summary object to be displayed
+ * @param {Object} props.summary - Summary object to be displayed
  * @return {JSX.Element}
  * @constructor
  */
@@ -38,7 +38,7 @@ function SummaryItem({ summary }) {
       size={'container'}
       mx={10}
     >
-      <Text bold fontSize={'2xl'} color={colors.primary}>{ summary.timePeriod.toUpperCase() }</Text>
+      <Text bold fontSize={'2xl'} textAlign={'center'} color={colors.primary}>{ summary.timePeriod.toUpperCase() }</Text>
       <Progress
         value={summary.count}
         min={0}
@@ -59,7 +59,7 @@ function SummaryItem({ summary }) {
           {
             summary.lifts?.count > 0 &&
             <Center mx={1}>
-              <Text bold fontSize={'md'} color={colors.secondary}>{ summary.lifts?.count }</Text>
+              <Text bold fontSize={'md'} color={colors.secondary}>{ summary.lifts?.count } Lift{ summary.lifts?.count > 1 ? 's' : '' }</Text>
               <Icon as={FontAwesome5} name={'dumbbell'} color={colors.secondary} size={'sm'} my={1} />
               <Text fontSize={'xs'} color={colors.primary} />
               <Text fontSize={'xs'} color={colors.primary}>{ displayDuration(summary.lifts?.duration) }</Text>
@@ -68,8 +68,8 @@ function SummaryItem({ summary }) {
           {
             summary.activities.map(activity =>
               <Center mx={1} key={activity.id}>
-                <Text bold fontSize={'md'} color={colors.secondary}>{ activity.count }</Text>
-                <Icon as={FontAwesome5} name={activity.icon} color={colors.secondary} size={'sm'} my={1} />
+                <Text bold fontSize={'md'} color={colors.secondary}>{ activity.count } { activity.displayableName }{ activity.displayableName && activity.count > 1 ? 's' : '' }</Text>
+                <Icon as={FontAwesome5} name={activity.icon || 'burn'} color={colors.secondary} size={'sm'} my={1} />
                 <Text fontSize={'xs'} color={colors.primary}>{ displayDistance(activity.distance) }</Text>
                 <Text fontSize={'xs'} color={colors.primary}>{ displayDuration(activity.duration) }</Text>
               </Center>
@@ -79,7 +79,7 @@ function SummaryItem({ summary }) {
       </Box>
     </Box>
   );
-};
+}
 
 /**
  * Functional component for Activity Summary display
@@ -92,7 +92,6 @@ function SummaryItem({ summary }) {
 export default function ActivitySummary({ summaries }) {
   return (
     <VStack>
-      <Heading fontSize={'4xl'} style={overviewScreenStyles.heading}>At a Glance</Heading>
       <HStack
         justify={'flex-start'}
       >
@@ -101,5 +100,5 @@ export default function ActivitySummary({ summaries }) {
         }
       </HStack>
     </VStack>
-  )
+  );
 };

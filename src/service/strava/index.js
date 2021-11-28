@@ -5,7 +5,7 @@ import { convertActivity } from './conversions';
 const logger = getLogger('stravaService');
 
 /**
- * Converts a Strava activity to a label object
+ * Converts a Strava activity to a label object to be used in components
  *
  * @param {Object} activity
  * @return {{date: string, duration: string, elevation: number, distance: string, heartRate: number, name, icon: string}}
@@ -15,19 +15,19 @@ export const toLabel = (activity) => {
   const distance = activityConversion !== undefined
     ? `${(activity.distance * activityConversion.conversionFactor).toFixed(2)} ${activityConversion.units}`
     : undefined;
-  const { hours, minutes, seconds } = dateTypeService.toDuration(activity.elapsed_time);
-  const duration = `${hours >= 1 ? hours + ' hr ': ''}${minutes + ' min '}${seconds + ' sec'}`;
+  // noinspection JSUnresolvedVariable
   const elevation = activity.total_elevation_gain && activity.total_elevation_gain > 0
     ? activity.total_elevation_gain
     : undefined;
+  // noinspection JSUnresolvedVariable
   const result = {
     name: activity.name,
     date: dateTypeService.formatDateTimeString(activity.start_date, 'h:mm a'),
     distance,
-    duration,
+    duration: dateTypeService.toDuration(activity.elapsed_time),
     elevation,
     heartRate: activity.average_heartrate,
-    icon: activityConversion.icon || 'dumbbell'
+    icon: activityConversion.icon || 'burn'
   };
   logger.debug({
     message: 'Converting activity to label',
@@ -35,6 +35,7 @@ export const toLabel = (activity) => {
     activity,
     result
   });
+  // noinspection JSValidateTypes
   return result;
 };
 

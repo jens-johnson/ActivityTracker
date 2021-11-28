@@ -18,5 +18,5 @@ export default function FormControlItem(props) {
       <FormControl.Label><Text style={formStyles.formControlLabel}>{ props.label }</Text></FormControl.Label>
       { props.children }
     </FormControl>
-  )
-}
+  );
+};

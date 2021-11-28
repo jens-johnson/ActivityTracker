@@ -1,3 +1,14 @@
+/**
+ * A mapping of Tracker Activity keys for usage in components:
+ *
+ *  units - Display units for a given activity
+ *
+ *  stravaActivityEquivalents - Reverse mapping to Strava Activity Type
+ *
+ *  icon - FontAwesome5 icon name
+ *
+ *  displayableName - Singular display name for activity
+ */
 const ACTIVITY_CONVERSIONS = {
   BK: {
     units: 'mi',
@@ -5,7 +16,15 @@ const ACTIVITY_CONVERSIONS = {
       'Ride',
       'VirtualRide'
     ],
-    icon: 'biking'
+    icon: 'biking',
+    displayableName: 'Ride'
+  },
+  EL: {
+    units: 'miles',
+    stravaActivityEquivalents: [
+      'Elliptical'
+    ],
+    displayableName: 'Elliptical'
   },
   RN: {
     units: 'mi',
@@ -13,19 +32,28 @@ const ACTIVITY_CONVERSIONS = {
       'Run',
       'VirtualRun'
     ],
-    icon: 'running'
+    icon: 'running',
+    displayableName: 'Run'
+  },
+  SM: {
+    units: 'floors',
+    stravaActivityEquivalents: [
+      'StairStepper'
+    ],
+    displayableName: 'Stair'
   },
   SWM: {
     units: 'm',
     stravaActivityEquivalents: [
       'Swim'
     ],
-    icon: 'swimmer'
-  }
+    icon: 'swimmer',
+    displayableName: 'Swim'
+  },
 };
 
 /**
- * Returns a conversion (if exists) for a given activity UID mapping to units, an icon name, and strava activity equivalents
+ * Returns a conversion (if exists) for a given Tracker Activity to its mappings
  *
  * @param {string} activityUid
  * @return {Object|undefined}

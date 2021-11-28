@@ -52,20 +52,29 @@
 import 'react-native-get-random-values';
 import 'react-native-url-polyfill/auto';
 import lodash from 'lodash';
+import moment from 'moment';
 import { v4 as uuidV4 } from 'uuid';
 import AWSClient from 'client/aws';
 import { getLogger } from 'service/logging';
 import { dateTypeService } from 'service/types';
 import { convertActivity } from './conversions';
 import { AWS_DYNAMODB_ACTIVITIES_TABLE, AWS_DYNAMO_DB_ACTIVITY_OPTIONS_TABLE } from '@env';
-import moment from 'moment';
 
+// Number of activity types to be displayed in summaries
 const NUMBER_OF_TOP_ACTIVITIES = 4;
+// Factor for upper limit of activities to be completed in month per days in that month
+const ACTIVITY_THRESHOLD_FACTOR = 1.40;
+
 const logger = getLogger('activityService');
 const activitiesTableDynamoDbClient = AWSClient.dynamoDb(AWS_DYNAMODB_ACTIVITIES_TABLE);
 const activityOptionsTableDynamoDbClient = AWSClient.dynamoDb(AWS_DYNAMO_DB_ACTIVITY_OPTIONS_TABLE);
 
-// TODO: Document
+/**
+ * Generates a keyed object mapping dates to boolean true/false for if a lifting and/or cardio activity was completed that day
+ *
+ * @param {TrackerActivityItem[]} activities
+ * @return {Object}
+ */
 const toActivitiesByTypeResponse = (activities) => {
   const byDate = lodash.groupBy(activities, activity => moment(activity.date).format('YYYY-MM-DD'));
   const result = {};
@@ -75,15 +84,21 @@ const toActivitiesByTypeResponse = (activities) => {
       cardio: byDate[date].filter(({ activity }) => activity !== 'WL').length > 0,
     }
   });
+  logger.debug({
+    event: 'activityService.toActivitiesByTypeResponse',
+    message: 'Generating activities by type response',
+    activities,
+    result
+  });
   return result;
-}
+};
 
 /**
  * Converts an array of activity objects from the DB and a summary object into a transformed activity summary object
  *
  * @param {TrackerActivityItem[]} activities - The activities to be converted
- * @param {Partial<ActivitySummary>} partialSummary
- * @return {ActivitySummary}
+ * @param {Partial<ActivitySummary>} partialSummary - The partial summary object to be transformed
+ * @return {ActivitySummary} - The generated summary object
  */
 const toActivitySummary = (activities, partialSummary) => {
   const {
@@ -94,21 +109,22 @@ const toActivitySummary = (activities, partialSummary) => {
   const topActivities = Object.values(lodash.groupBy(nonLifts, 'activity')).slice(0, NUMBER_OF_TOP_ACTIVITIES);
   const result = {
     ...rest,
-    duration: dateTypeService.toDuration(activities.reduce((acc, { duration }) => acc + duration, 0), 'string'),
+    duration: dateTypeService.toDuration(activities.reduce((acc, { duration }) => acc + duration, 0)),
     count: activities.length,
     lifts: {
-      duration: dateTypeService.toDuration(lifts.reduce((acc, { duration }) => acc + duration, 0), 'string'),
+      duration: dateTypeService.toDuration(lifts.reduce((acc, { duration }) => acc + duration, 0)),
       count: lifts.length
     },
     activities: topActivities.map(activityType => ({
       id: uuidV4(),
       count: activityType.length,
-      duration: dateTypeService.toDuration(activityType.reduce((acc, { duration }) => acc + duration, 0), 'string'),
+      duration: dateTypeService.toDuration(activityType.reduce((acc, { duration }) => acc + duration, 0)),
       distance: {
         value: activityType.reduce((acc, {distance}) => acc + distance, 0),
         units: convertActivity(activityType[0]?.activity)?.units
       },
-      icon: convertActivity(activityType[0]?.activity)?.icon
+      icon: convertActivity(activityType[0]?.activity)?.icon,
+      displayableName: convertActivity(activityType[0]?.activity)?.displayableName
     }))
   };
   logger.debug({
@@ -124,8 +140,8 @@ const toActivitySummary = (activities, partialSummary) => {
 
 /**
  *
- * @param {TrackerActivity} activity - The tracker activity to be converted to a tracker activity item
- * @return {TrackerActivityItem} - The resulting tracker activity item
+ * @param {TrackerActivity} activity - The Tracker Activity to be converted to a Tracker Activity item
+ * @return {TrackerActivityItem} - The resulting Tracker Activity item
  */
 const toActivityItem = (activity) => {
   let {
@@ -165,19 +181,43 @@ const toActivityItem = (activity) => {
   return result;
 };
 
-const listActivitiesByType = (query) => {
+/**
+ * Retrieves a mapping of dates to boolean true/false for lifting and/or cardio activities completed on those dates
+ *
+ * @param {{ before: number, after: number }} dateRange
+ * @return {Promise<Object>}
+ */
+const retrieveActivitiesByType = (dateRange) => {
   logger.info({
-    message: 'Listing activities by type',
-    event: 'activityService.listActivitiesByType',
-    query
+    message: 'Retrieving activities by type',
+    event: 'activityService.retrieveActivitiesByType',
+    dateRange
   });
   return Promise.resolve()
-    .then(() => activitiesTableDynamoDbClient.getItemsByDate(query))
+    .then(() => activitiesTableDynamoDbClient.getItemsByDate(dateRange))
     .then(toActivitiesByTypeResponse)
-}
+    .then((result) => {
+      logger.debug({
+        message: 'Retrieved activities by type',
+        event: 'activityService.retrieveActivitiesByType',
+        success: true,
+        result
+      });
+      return result;
+    })
+    .catch((error) => {
+      logger.error({
+        message: 'Failed to retrieve activities by type',
+        event: 'activityService.retrieveActivitiesByType',
+        success: false,
+        error
+      });
+      throw error;
+    });
+};
 
 /**
- * Retrieves an array of tracker activity options from DynamoDB
+ * Retrieves an array of Tracker Activity Option Items
  *
  * @return {Promise<TrackerActivityOptionItem[]>}
  */
@@ -247,32 +287,33 @@ const uploadActivity = (activity) => {
  * @return {Promise<ActivitySummary[]>}
  */
 const retrieveActivitySummaries = () => {
+  const today = new Date();
   let summaries = [
     {
       id: uuidV4(),
       timePeriod: 'Today',
-      timePeriodSize: 2,
+      timePeriodSize: Math.ceil(ACTIVITY_THRESHOLD_FACTOR),
       query: {
-        after: dateTypeService.startOf(new Date(), 'day'),
-        before: dateTypeService.endOf(new Date(), 'day')
+        after: dateTypeService.startOf(today, 'day'),
+        before: dateTypeService.endOf(today, 'day')
       }
     },
     {
       id: uuidV4(),
       timePeriod: 'This Week',
-      timePeriodSize: 14,
+      timePeriodSize: Math.ceil(7 * ACTIVITY_THRESHOLD_FACTOR),
       query: {
-        after: dateTypeService.startOf(new Date(), 'week'),
-        before: dateTypeService.endOf(new Date(), 'week')
+        after: dateTypeService.startOf(today, 'week'),
+        before: dateTypeService.endOf(today, 'week')
       }
     },
     {
       id: uuidV4(),
       timePeriod: 'This Month',
-      timePeriodSize: 60,
+      timePeriodSize: Math.ceil(moment().daysInMonth() * ACTIVITY_THRESHOLD_FACTOR),
       query: {
-        after: dateTypeService.startOf(new Date(), 'month'),
-        before: dateTypeService.endOf(new Date(), 'month')
+        after: dateTypeService.startOf(today, 'month'),
+        before: dateTypeService.endOf(today, 'month')
       }
     }
   ];
@@ -281,6 +322,7 @@ const retrieveActivitySummaries = () => {
     event: 'activityService.retrieveActivitySummaries',
     summaries
   });
+  // noinspection JSValidateTypes
   return summaries.map(summary => Promise.resolve(summary)
       .then(() => activitiesTableDynamoDbClient.getItemsByDate(summary.query)
         .then(activities => {
@@ -307,6 +349,6 @@ const retrieveActivitySummaries = () => {
 export default {
   uploadActivity,
   listActivityOptions,
-  listActivitiesByType,
+  retrieveActivitiesByType,
   retrieveActivitySummaries
 };
