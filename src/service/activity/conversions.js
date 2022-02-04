@@ -1,15 +1,12 @@
 /**
- * A mapping of Tracker Activity keys for usage in components:
+ * A mapping of Activity keys for usage in components:
  *
- *  units - Display units for a given activity
- *
- *  stravaActivityEquivalents - Reverse mapping to Strava Activity Type
- *
- *  icon - FontAwesome5 icon name
- *
- *  displayableName - Singular display name for activity
+ *    units - Display units for a given activity
+ *    stravaActivityEquivalents - Reverse mapping to Strava Activity Type
+ *    icon - FontAwesome5 icon name
+ *    displayableName - Singular display name for activity
  */
-const ACTIVITY_CONVERSIONS = {
+const CONVERSIONS = {
   BK: {
     units: 'mi',
     stravaActivityEquivalents: [
@@ -53,11 +50,13 @@ const ACTIVITY_CONVERSIONS = {
 };
 
 /**
- * Returns a conversion (if exists) for a given Tracker Activity to its mappings
+ * Returns a conversion (if exists) for a given Activity to its mappings
  *
  * @param {string} activityUid
  * @return {Object|undefined}
  */
-export const convertActivity = (activityUid) => {
-  return ACTIVITY_CONVERSIONS[activityUid];
-};
+function convert(activityUid) {
+  return CONVERSIONS[activityUid];
+}
+
+export default convert;

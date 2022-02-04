@@ -1,4 +1,4 @@
-import * as dev from './dev';
+import dev from './dev';
 
 export default {
   dev

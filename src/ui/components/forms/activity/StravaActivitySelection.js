@@ -1,28 +1,20 @@
 import React from 'react';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Radio, Text, Container, HStack, VStack, Icon } from 'native-base';
-import stravaService from 'service/strava';
+
 import { colors } from 'ui/styles';
 
-/**
- * Component constructor providing an array of <Checkbox /> elements for Strava activities
- *
- * @param {Object} props - Component props
- * @param {Object[]} props.activities - Array of TrackerActivities
- * @return {JSX.Element[]}
- * @constructor
- */
-export default function StravaActivitySelection({ activities }) {
+function StravaActivitySelection({ activities }) {
   return activities.map(activity => {
     const {
-      date,
+      timeOfDay,
       icon,
       name,
       heartRate,
       duration,
       distance,
       elevation
-    } = stravaService.toLabel(activity);
+    } = activity;
     return (
       <Radio
         key={activity.id}
@@ -36,10 +28,10 @@ export default function StravaActivitySelection({ activities }) {
             <VStack mx={2}>
               <Text color={colors.primary} fontSize={'sm'} my={1} bold>{ name || 'Activity' }</Text>
               {
-                date &&
+                timeOfDay &&
                 <HStack>
                   <Icon as={FontAwesome5} name={'clock'} color={colors.secondary} size={'xs'} />
-                  <Text color={colors.primary} mx={2} fontSize={'xs'}>{ date }</Text>
+                  <Text color={colors.primary} mx={2} fontSize={'xs'}>{ timeOfDay }</Text>
                 </HStack>
               }
               {
@@ -76,4 +68,6 @@ export default function StravaActivitySelection({ activities }) {
       </Radio>
     )
   });
-};
+}
+
+export default StravaActivitySelection;

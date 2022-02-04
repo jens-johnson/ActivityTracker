@@ -1,13 +1,17 @@
 import { LogBox } from 'react-native';
-import { getLogger } from 'service/logging';
 
-const logger = getLogger('devUtils');
+import logging from 'common/logging';
 
+const logger = logging.getLogger('ui-dev-utils');
+
+/**
+ * Default warnings to be suppressed in the Expo console
+ */
 const DEFAULT_WARNINGS = [
   {
     pattern: 'Please pass alt prop to Image component',
     description: 'Home screen image causing unknown error; alt prop is being supplied',
-    trace: 'src/ui/screens/HomeScreen.js'
+    trace: 'src/ui/screens/Home.js'
   },
   {
     pattern: 'Require cycle: src/ui/components/forms/activity/index.js',
@@ -22,15 +26,19 @@ const DEFAULT_WARNINGS = [
 ];
 
 /**
- * Suppresses RN dev warnings in console
+ * Suppresses warnings in the Expo console
  *
  * @param {Object[]} warnings
  */
-export const suppressWarnings = (warnings = []) => {
-  logger.info({
-    event: 'devUtils.suppressWarnings',
+function suppressWarnings(warnings = []) {
+  logger.debug({
+    event: 'suppressWarnings',
     default: DEFAULT_WARNINGS,
     additional: warnings
   });
-  LogBox.ignoreLogs([ ...DEFAULT_WARNINGS.map(s => s.pattern), ...warnings.map(s => s.pattern) ]);
+  LogBox.ignoreLogs([ ...DEFAULT_WARNINGS.map(({ pattern }) => pattern), ...warnings.map(({ pattern }) => pattern) ]);
+}
+
+export default {
+  suppressWarnings
 };

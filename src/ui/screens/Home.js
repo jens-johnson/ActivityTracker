@@ -2,16 +2,17 @@ import React from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Container, Image } from 'native-base';
+
 import { defaultStyles } from 'ui/styles';
 import logo from 'assets/logo.png';
 
 /**
- * Default home screen functional component
+ * Component for default Home screen
  *
- * @return {JSX.Element}
  * @constructor
+ * @component
  */
-export default function HomeScreen() {
+function HomeScreen() {
   return (
     <SafeAreaView style={defaultStyles.page}>
       <Container>
@@ -21,3 +22,5 @@ export default function HomeScreen() {
     </SafeAreaView>
   );
 }
+
+export default HomeScreen;
