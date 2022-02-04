@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import moment from 'moment';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {ScrollView, Center, Heading} from 'native-base';
+import { ScrollView, Heading } from 'native-base';
 import { useIsFocused } from '@react-navigation/native';
 
 import activityClient from 'client/activity';
@@ -17,23 +17,17 @@ function OverviewScreen() {
     error: undefined
   });
   useEffect(() => {
+    let isMounted = true;
     activityClient.getActivitySummaries()
-      .then(summaries => {
-        setState({ ...state, summaries })
-      })
-      .catch(error => {
-        setState({ ...state, summaries: [], error })
-      });
+      .then(summaries => isMounted ? setState({ ...state, summaries }) : null)
+      .catch(error => isMounted ? setState({ ...state, summaries: [], error }) : null);
     activityClient.getActivitySummariesByDate({
       before: new moment().endOf('year').valueOf(),
       after: new moment().startOf('year').valueOf()
     })
-      .then(activitiesForThisPeriod => {
-        setState({ ...state, activitiesForThisPeriod })
-      })
-      .catch(error => {
-        setState({ ...state, activitiesForThisPeriod: [], error })
-      });
+      .then(activitiesForThisPeriod => isMounted ? setState({ ...state, activitiesForThisPeriod }) : null)
+      .catch(error => isMounted ? setState({ ...state, activitiesForThisPeriod: [], error }) : null);
+    return () => { isMounted = false; }
   }, [ isFocused ]);
   return (
     <SafeAreaView style={defaultStyles.page}>

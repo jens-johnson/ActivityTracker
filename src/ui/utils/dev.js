@@ -36,7 +36,7 @@ function suppressWarnings(warnings = []) {
     default: DEFAULT_WARNINGS,
     additional: warnings
   });
-  LogBox.ignoreLogs([ ...DEFAULT_WARNINGS.map(({ pattern }) => pattern), ...warnings.map(({ pattern }) => pattern) ]);
+  //LogBox.ignoreLogs([ ...DEFAULT_WARNINGS.map(({ pattern }) => pattern), ...warnings.map(({ pattern }) => pattern) ]);
 }
 
 export default {

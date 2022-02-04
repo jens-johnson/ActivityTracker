@@ -16,7 +16,7 @@ function HomeScreen() {
   return (
     <SafeAreaView style={defaultStyles.page}>
       <Container>
-        <Image alt={''} source={logo} style={defaultStyles.image} />
+        <Image alt={'Activity Tracker'} source={logo} style={defaultStyles.image} />
         <StatusBar style={'auto'} />
       </Container>
     </SafeAreaView>
