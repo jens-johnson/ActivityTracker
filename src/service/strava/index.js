@@ -1,9 +1,16 @@
 import logging from 'common/logging';
 import transformers from './transformers';
-import convert from './conversions';
 
 const logger = logging.getLogger('strava-service');
 
+/**
+ * Parses a Strava API response to transform resulting items using an optional filter
+ *
+ * @param {Object} params - Request params
+ * @param {Object[]} params.stravaActivityItems - The response items
+ * @param {Object} params.filter - A filter to filter the response using
+ * @return {Object[]}
+ */
 function parseActivitiesResponse({ stravaActivityItems, filter }) {
   const activities = stravaActivityItems.map(transformers.toActivity);
   const filteredResponse = filter.activity

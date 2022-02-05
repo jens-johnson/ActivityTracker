@@ -13,18 +13,27 @@ import { AWS_DYNAMO_DB_ACTIVITIES_TABLE, AWS_DYNAMO_DB_ACTIVITY_OPTIONS_TABLE } 
 
 const logger = logging.getLogger('activity-service');
 
-function getActivitySummariesByDate({ before, after }) {
+/**
+ * Retrieves activity metrics for a given date range, describing the number of cardio and lifting activities completed on a given calendar day for each day in the date range
+ *
+ * @param {Object} options - Request options
+ * @param {number} options.before - The epoch value describing the end of the date range
+ * @param {number} options.after - The epoch value describing the beginning of the date range
+ * @return {Promise<Object[], Error>}
+ */
+function getActivityMetricsByDate({ before, after }) {
   const params = {
+    /** @type {string} */
     table: AWS_DYNAMO_DB_ACTIVITIES_TABLE,
     before,
     after
   };
   return dynamoClient.getItemsByDate(params)
-    .then(transformers.toActivityDateSummary)
+    .then(transformers.toActivityMetrics)
     .then(summary => {
       logger.debug({
         message: 'Retrieved activity summaries by date',
-        event: 'getActivitySummariesByDate',
+        event: 'getActivityMetricsByDate',
         success: true,
         before,
         after,
@@ -35,7 +44,7 @@ function getActivitySummariesByDate({ before, after }) {
     .catch(error => {
       logger.error({
         message: 'Failed to retrieve activity summaries by date',
-        event: 'getActivitySummariesByDate',
+        event: 'getActivityMetricsByDate',
         success: false,
         before,
         after,
@@ -45,55 +54,10 @@ function getActivitySummariesByDate({ before, after }) {
     });
 }
 
-function getActivityOptions() {
-  const params = {
-    table: AWS_DYNAMO_DB_ACTIVITY_OPTIONS_TABLE
-  };
-  return dynamoClient.getAllItems(params)
-    .then(activityOptionItems => activityOptionItems.map(transformers.toActivityOption))
-    .then(activityOptions => {
-      logger.debug({
-        message: 'Retrieved activity options',
-        event: 'getActivityOptions',
-        success: true,
-        activityOptions
-      });
-      return activityOptions;
-    })
-    .catch(error => {
-      logger.error({
-        message: 'Failed to retrieve activity options',
-        event: 'getActivityOptions',
-        success: false,
-        error
-      });
-      throw error;
-    });
-}
-
-function uploadActivity(activity) {
-  return Promise.resolve(activity)
-    .then(transformers.toActivityItem)
-    .then(dynamoClient.putItem)
-    .then(() => {
-      logger.debug({
-        message: 'Activity uploaded',
-        event: 'uploadActivity',
-        success: true,
-        activity
-      });
-    })
-    .catch((error) => {
-      logger.error({
-        message: 'Activity failed to upload',
-        event: 'uploadActivity',
-        success: false,
-        error
-      });
-      throw error;
-    });
-}
-
+/**
+ * Retrieves activity summaries for a default set of time periods (i.e. daily, weekly, monthly), with metadata describing activities completed during those periods
+ * @return {Promise<Object[], Error>}
+ */
 function getActivitySummaries() {
   const {
     activity: {
@@ -131,7 +95,7 @@ function getActivitySummaries() {
       before: summary.before,
       after: summary.after
     })
-    .then(items => transformers.toActivitySummary(items, summary))
+      .then(items => transformers.toActivitySummary(items, summary))
   ))
     .then(summaries => {
       logger.debug({
@@ -153,9 +117,69 @@ function getActivitySummaries() {
     });
 }
 
+/**
+ * Retrieves all available activity options
+ *
+ * @return {Promise<Object[], Error>}
+ */
+function getActivityOptions() {
+  const params = {
+    table: AWS_DYNAMO_DB_ACTIVITY_OPTIONS_TABLE
+  };
+  return dynamoClient.getAllItems(params)
+    .then(activityOptionItems => activityOptionItems.map(transformers.toActivityOption))
+    .then(activityOptions => {
+      logger.debug({
+        message: 'Retrieved activity options',
+        event: 'getActivityOptions',
+        success: true,
+        activityOptions
+      });
+      return activityOptions;
+    })
+    .catch(error => {
+      logger.error({
+        message: 'Failed to retrieve activity options',
+        event: 'getActivityOptions',
+        success: false,
+        error
+      });
+      throw error;
+    });
+}
+
+/**
+ * Uploads an activity to Dynamo DB
+ *
+ * @param {Object} activity
+ * @return {Promise<*|Error>}
+ */
+function uploadActivity(activity) {
+  return Promise.resolve(activity)
+    .then(transformers.toActivityItem)
+    .then(dynamoClient.putItem)
+    .then(() => {
+      logger.debug({
+        message: 'Activity uploaded',
+        event: 'uploadActivity',
+        success: true,
+        activity
+      });
+    })
+    .catch(error => {
+      logger.error({
+        message: 'Activity failed to upload',
+        event: 'uploadActivity',
+        success: false,
+        error
+      });
+      throw error;
+    });
+}
+
 export default {
   uploadActivity,
-  getActivityOptions,
-  getActivitySummariesByDate,
-  getActivitySummaries
+  getActivityMetricsByDate,
+  getActivitySummaries,
+  getActivityOptions
 };

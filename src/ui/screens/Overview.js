@@ -21,7 +21,7 @@ function OverviewScreen() {
     activityClient.getActivitySummaries()
       .then(summaries => isMounted ? setState({ ...state, summaries }) : null)
       .catch(error => isMounted ? setState({ ...state, summaries: [], error }) : null);
-    activityClient.getActivitySummariesByDate({
+    activityClient.getActivityMetricsByDate({
       before: new moment().endOf('year').valueOf(),
       after: new moment().startOf('year').valueOf()
     })

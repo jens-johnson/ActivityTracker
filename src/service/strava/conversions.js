@@ -1,10 +1,10 @@
 /**
  * A mapping of Strava activity types to be used in other components
  *
- *    conversionFactor: The conversion factor for the units of the Strava activity (i.e. Strava tracks runs in meters, but the app displays them in miles)
- *    units: A displayable string for the activity's units
- *    trackerActivityKey: Mapping to Tracker Activity Item equivalent for the Strava activity
- *    icon: The FontAwesome5 icon name to display for the activity
+ *    • metric: T/F if the activity's distance is measured in metric units
+ *    • units: A displayable string for the activity's units
+ *    • activityKey: Mapping to the Activity equivalent for the Strava activity
+ *    • icon: The FontAwesome5 icon name to display for the activity
  */
 const CONVERSIONS = {
   Elliptical: {
@@ -44,6 +44,12 @@ const CONVERSIONS = {
   }
 };
 
+/**
+ * Converts a Strava Activity Type to metadata to be used throughout the application
+ *
+ * @param {string} stravaActivityType
+ * @return {Object|undefined}
+ */
 function convert(stravaActivityType) {
   return CONVERSIONS[stravaActivityType];
 }

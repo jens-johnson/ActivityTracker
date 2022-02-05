@@ -7,7 +7,6 @@ import types from 'utils/types';
 import { colors } from 'ui/styles';
 
 function StravaActivitySelection({ activity }) {
-  console.log('HERE', activity)
   const {
     timeOfDay,
     icon,

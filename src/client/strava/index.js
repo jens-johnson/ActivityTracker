@@ -18,6 +18,11 @@ const {
 
 const logger = logging.getLogger('strava-client');
 
+/**
+ * Authenticates through the Strava API using a refresh token to obtain an access token for session data
+ *
+ * @return {Promise<string>}
+ */
 function authenticate() {
   const request = {
     url: STRAVA_AUTH_URL,
@@ -49,6 +54,12 @@ function authenticate() {
     });
 }
 
+/**
+ * Submits a request to the Strava API to retrieve all Athlete activities with optional request params
+ *
+ * @param {Object} request
+ * @return {Promise<Object[]>}
+ */
 function getActivities(request) {
   return authenticate()
     .then(access_token => axiosClient.get({

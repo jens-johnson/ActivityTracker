@@ -1,23 +1,30 @@
-import activityService from 'service/activity';
 import logging from 'common/logging';
+import activityService from 'service/activity';
 
 const logger = logging.getLogger('activity-client');
 
-function getActivitySummariesByDate({ before, after }) {
-  return activityService.getActivitySummariesByDate({ before, after })
-      .then(summaries => {
+/**
+ * Returns activity metrics for a given date range
+ *
+ * @param {number} before - Epoch value specifying the end of the date range
+ * @param {number} after - Epoch value specifying the beginning of the date range
+ * @returns {Promise<Object[]>}
+ */
+function getActivityMetricsByDate({ before, after }) {
+  return activityService.getActivityMetricsByDate({ before, after })
+      .then(metrics => {
         logger.debug({
-          message: 'Successfully retrieved activity summaries by date',
-          event: 'getActivitySummariesByDate',
+          message: 'Successfully retrieved activity metrics by date',
+          event: 'getActivityMetricsByDate',
           success: true,
-          dates: summaries.length
+          dates: metrics.length
         });
-        return summaries;
+        return metrics;
       })
       .catch(error => {
         logger.error({
-          message: 'Failed to retrieve activity summaries by date',
-          event: 'getActivitySummariesByDate',
+          message: 'Failed to retrieve activity metrics by date',
+          event: 'getActivityMetricsByDate',
           success: false,
           error
         });
@@ -25,6 +32,11 @@ function getActivitySummariesByDate({ before, after }) {
       });
 }
 
+/**
+ * Retrieves all available activity options
+ *
+ * @return {Promise<Object[]>}
+ */
 function getActivityOptions() {
   return activityService.getActivityOptions()
       .then(options => {
@@ -47,6 +59,12 @@ function getActivityOptions() {
       });
 }
 
+/**
+ * Uploads an activity
+ *
+ * @param {Object} activity
+ * @return {Promise<*|Error>}
+ */
 function uploadActivity(activity) {
   return activityService.uploadActivity(activity)
       .then(() => {
@@ -69,6 +87,11 @@ function uploadActivity(activity) {
       });
 }
 
+/**
+ * Retrieves activity summaries for a default set of date ranges
+ *
+ * @return {Promise<Object[]>}
+ */
 function getActivitySummaries() {
   return activityService.getActivitySummaries()
       .then(summaries => {
@@ -94,6 +117,6 @@ function getActivitySummaries() {
 export default {
   uploadActivity,
   getActivityOptions,
-  getActivitySummariesByDate,
+  getActivityMetricsByDate,
   getActivitySummaries
 };
