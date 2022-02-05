@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'native-base';
 
 import activityClient from 'client/activity';
+import stravaClient from 'client/strava';
 import { defaultStyles } from 'ui/styles';
 
 import ActivityInputForm from 'ui/components/forms/activity';
@@ -25,10 +26,17 @@ export default function LogActivityScreen() {
     return () => { isMounted = false }
   }, []);
 
+  function onActivitySelected(request) {
+    return stravaClient.getActivities(request);
+  }
+
   return (
     <SafeAreaView style={defaultStyles.logActivityScreen}>
       <ScrollView>
-        <ActivityInputForm activityOptions={state.activityOptions} />
+        <ActivityInputForm
+          activityOptions={state.activityOptions}
+          onActivitySelected={onActivitySelected}
+        />
       </ScrollView>
     </SafeAreaView>
   )

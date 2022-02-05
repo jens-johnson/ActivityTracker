@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import moment from 'moment';
+
 import { VStack, Center, Text, Heading, Select, Input, Button, Radio, Icon } from 'native-base';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { TimePicker } from 'react-native-simple-time-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import moment from 'moment';
 
 import activityClient from 'client/activity';
-import stravaClient from 'client/strava';
 
 import FormControlItem from '../FormControlItem';
 import StravaActivitySelection from './StravaActivitySelection';
 
 import { colors, activityFormStyles } from 'ui/styles';
 
-function ActivityInputForm({ activityOptions }) {
+function ActivityInputForm({ activityOptions, onActivitySelected }) {
+  /**
+   * Returns a default state
+   *
+   * @return {Object} - The default state
+   */
   function getDefaultState() {
     return {
       formData: {
@@ -40,37 +45,24 @@ function ActivityInputForm({ activityOptions }) {
       uploaded: false,
       options: [],
       liftingGroups: [],
-      stravaActivities: []
+      stravaActivities: [],
+      activitySelectedHandler: null
     };
   }
 
   const [ state, setState ] = useState(getDefaultState());
 
-  useEffect(() => {
-    setStravaActivities();
-  }, [state.formData.date, state.formData.activity]);
-
-  useEffect(() => {
-    setState({ ...state, options: activityOptions })
+  useEffect(async() => {
+    setState({ ...state, options: activityOptions });
   }, [activityOptions]);
 
-  function setFormData(data) {
-    return setState({
-      ...state,
-      formData: {
-        ...state.formData,
-        ...data
-      }
-    });
-  }
+  useEffect(() => {
+    setState({ ...state, activitySelectedHandler: onActivitySelected });
+  }, [onActivitySelected]);
 
-  function resetState(data) {
-    return setState({ ...getDefaultState(), ...data });
-  }
-
-  function setStravaActivities() {
-    if (state.formData.activity) {
-      stravaClient.getActivities({
+  useEffect(() => {
+    if (state.formData.activity && state.activitySelectedHandler) {
+      state.activitySelectedHandler({
         query: {
           before: moment(state.formData.date).endOf('day').unix(),
           after: moment(state.formData.date).startOf('day').unix()
@@ -79,18 +71,36 @@ function ActivityInputForm({ activityOptions }) {
           activity: state.formData.activity
         }
       })
-        .then(stravaActivities => setState({
-          ...state,
-          stravaActivities
-        }))
-        .catch(error => setState({
-          ...state,
-          error
-        }));
+        .then(stravaActivities => setState({ ...state, stravaActivities }))
+        .catch(error => setState({ ...state, error }));
     }
+  }, [state.formData.date, state.formData.activity]);
+
+  /**
+   * Updates form data in state
+   *
+   * @param {Object} data
+   */
+  function setFormData(data) {
+    setState({
+      ...state,
+      formData: {
+        ...state.formData,
+        ...data
+      }
+    });
   }
 
-  function onActivitySelected(activity) {
+  /**
+   * Resets state with optional data
+   *
+   * @param {Object} data
+   */
+  function resetState(data) {
+    return setState({ ...getDefaultState(), ...data });
+  }
+
+  function activitySelected(activity) {
     setState({
       ...state,
       display: {
@@ -152,19 +162,22 @@ function ActivityInputForm({ activityOptions }) {
             onChange={(_, date) => setFormData({ date })}
           />
         </FormControlItem>
-        <FormControlItem isRequired label={'Activity'}>
-          <Select
-            selectedValue={JSON.stringify(state.formData.activity)}
-            color={colors.primary}
-            onValueChange={onActivitySelected}
-          >
-            {
-              state.options.map(activity => (
-                <Select.Item label={activity.label} value={JSON.stringify(activity)} key={activity.activityKey} />
-              ))
-            }
-          </Select>
-        </FormControlItem>
+        {
+          state.options.length > 1 &&
+          <FormControlItem isRequired label={'Activity'}>
+            <Select
+              selectedValue={JSON.stringify(state.formData.activity)}
+              color={colors.primary}
+              onValueChange={activitySelected}
+            >
+              {
+                state.options.map(activity => (
+                  <Select.Item label={activity.label} value={JSON.stringify(activity)} key={activity.activityKey} />
+                ))
+              }
+            </Select>
+          </FormControlItem>
+        }
         {
           state.display.liftingGroups &&
           <FormControlItem isRequired label={'Muscle Group'}>
