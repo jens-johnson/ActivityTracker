@@ -25,6 +25,7 @@ function authenticate() {
       client_id: STRAVA_CLIENT_ID,
       client_secret: STRAVA_CLIENT_SECRET,
       refresh_token: STRAVA_REFRESH_TOKEN,
+      scope: 'activity:read_all',
       grant_type: 'refresh_token'
     }
   };

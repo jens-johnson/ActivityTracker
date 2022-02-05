@@ -24,7 +24,7 @@ function ActivityInputForm({ activityOptions }) {
           hours: 0
         },
         distance: '',
-        activity: '',
+        activity: {},
         stravaActivity: [],
         liftingGroup: '',
         notes: ''
@@ -38,19 +38,21 @@ function ActivityInputForm({ activityOptions }) {
       loading: false,
       error: null,
       uploaded: false,
-      activityOptions: [],
+      options: [],
       liftingGroups: [],
-      //activityOptions,
-      //liftingGroups: activityOptions.find(option => option.activityKey === 'WL').groups,
       stravaActivities: []
     };
   }
 
-  const [state, setState] = useState(getDefaultState());
+  const [ state, setState ] = useState(getDefaultState());
 
-  useEffect(async() => {
-    await setStravaActivities();
+  useEffect(() => {
+    setStravaActivities();
   }, [state.formData.date, state.formData.activity]);
+
+  useEffect(() => {
+    setState({ ...state, options: activityOptions })
+  }, [activityOptions]);
 
   function setFormData(data) {
     return setState({
@@ -68,7 +70,7 @@ function ActivityInputForm({ activityOptions }) {
 
   function setStravaActivities() {
     if (state.formData.activity) {
-      return stravaClient.getActivities({
+      stravaClient.getActivities({
         query: {
           before: moment(state.formData.date).endOf('day').unix(),
           after: moment(state.formData.date).startOf('day').unix()
@@ -89,7 +91,7 @@ function ActivityInputForm({ activityOptions }) {
   }
 
   function onActivitySelected(activity) {
-    return setState({
+    setState({
       ...state,
       display: {
         duration: activity.duration,
@@ -99,7 +101,7 @@ function ActivityInputForm({ activityOptions }) {
       },
       formData: {
         ...state.formData,
-        activity,
+        activity: JSON.parse(activity),
         duration: {
           seconds: 0,
           minutes: 0,
@@ -147,18 +149,18 @@ function ActivityInputForm({ activityOptions }) {
             is24Hour={true}
             display={'inline'}
             themeVariant={'dark'}
-            onChange={(event, date) => setFormData({ date })}
+            onChange={(_, date) => setFormData({ date })}
           />
         </FormControlItem>
         <FormControlItem isRequired label={'Activity'}>
           <Select
-            selectedValue={state.formData.activity}
+            selectedValue={JSON.stringify(state.formData.activity)}
             color={colors.primary}
             onValueChange={onActivitySelected}
           >
             {
-              state.activityOptions.map(activity => (
-                <Select.Item label={activity.label} value={activity} key={activity.id} />
+              state.options.map(activity => (
+                <Select.Item label={activity.label} value={JSON.stringify(activity)} key={activity.activityKey} />
               ))
             }
           </Select>
@@ -183,11 +185,15 @@ function ActivityInputForm({ activityOptions }) {
           state.stravaActivities.length > 0 &&
           <FormControlItem label={'Attach Strava Activity:'}>
             <Radio.Group
-              value={state.formData.stravaActivity}
+              value={state.stravaActivities[0].id}
               onChange={stravaActivity => setFormData({ stravaActivity })}
               size={'lg'}
             >
-              <StravaActivitySelection activities={state.stravaActivities} />
+              {
+                state.stravaActivities.map(activity => (
+                  <StravaActivitySelection activity={activity} />
+                ))
+              }
             </Radio.Group>
           </FormControlItem>
         }

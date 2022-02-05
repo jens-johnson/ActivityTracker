@@ -7,20 +7,22 @@ import { defaultStyles } from 'ui/styles';
 
 import ActivityInputForm from 'ui/components/forms/activity';
 
-/**
- * Activity input screen functional component
- *
- * @return {JSX.Element}
- * @constructor
- */
 export default function LogActivityScreen() {
-  const [ state, setState ] = useState({
-    activityOptions: []
-  });
+  function getDefaultState() {
+    return {
+      activityOptions: [],
+      error: null
+    }
+  }
 
-  useEffect(async() => {
+  const [ state, setState ] = useState(getDefaultState());
+
+  useEffect(() => {
+    let isMounted = true;
     activityClient.getActivityOptions()
-      .then(activityOptions => setState({ activityOptions }));
+      .then(activityOptions => isMounted ? setState({ ...state, activityOptions }) : null)
+      .catch(error => isMounted ? setState({ ...state, activityOptions: [], error }) : null);
+    return () => { isMounted = false }
   }, []);
 
   return (
