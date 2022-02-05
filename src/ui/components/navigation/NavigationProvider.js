@@ -1,19 +1,21 @@
 import React from 'react';
+
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import Screens from 'ui/screens';
+
 import { navigationStyles, colors } from 'ui/styles';
+
+import Screens from 'ui/screens';
 
 const stackNavigator = createMaterialTopTabNavigator();
 
 /**
- * Creates a tap navigator over the applications screens
+ * Core navigation provider; provides navigation over application screens using tab navigation
  *
- * @return {JSX.Element}
  * @constructor
  */
-export default function NavigationProvider() {
+function NavigationProvider() {
   return (
     <NavigationContainer style={{ backgroundColor: 'pink' }}>
       <stackNavigator.Navigator
@@ -54,3 +56,5 @@ export default function NavigationProvider() {
     </NavigationContainer>
   );
 }
+
+export default NavigationProvider;

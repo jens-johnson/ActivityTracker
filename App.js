@@ -1,16 +1,20 @@
 import React from 'react';
-import { Application } from 'ui/components';
-import { getLogger } from 'service/logging';
+import Application from 'ui/components';
+import logging from 'common/logging';
 
-const logger = getLogger('expo-application');
+const logger = logging.getLogger('expo-application');
 
 /**
- * Entry point for Expo application
+ * Root App component that serves as the entry point for the Expo application
  *
- * @return {JSX.Element} - The root application
- * @constructor
+ * @component
  */
-export default function App() {
-  logger.info({ message:'Application initialized' });
+function App() {
+  logger.info({
+    event: 'initApplication',
+    message: 'Application initialized'
+  });
   return <Application />
 }
+
+export default App;

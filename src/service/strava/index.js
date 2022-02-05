@@ -1,59 +1,30 @@
-import { dateTypeService } from 'service/types';
-import { getLogger } from 'service/logging';
-import { convertActivity } from './conversions';
+import logging from 'common/logging';
+import transformers from './transformers';
 
-const logger = getLogger('stravaService');
+const logger = logging.getLogger('strava-service');
 
 /**
- * Converts a Strava activity to a label object to be used in components
+ * Parses a Strava API response to transform resulting items using an optional filter
  *
- * @param {Object} activity
- * @return {{date: string, duration: string, elevation: number, distance: string, heartRate: number, name, icon: string}}
+ * @param {Object} params - Request params
+ * @param {Object[]} params.stravaActivityItems - The response items
+ * @param {Object} params.filter - A filter to filter the response using
+ * @return {Object[]}
  */
-export const toLabel = (activity) => {
-  const activityConversion = convertActivity(activity.type);
-  const distance = activityConversion !== undefined
-    ? `${(activity.distance * activityConversion.conversionFactor).toFixed(2)} ${activityConversion.units}`
-    : undefined;
-  // noinspection JSUnresolvedVariable
-  const elevation = activity.total_elevation_gain && activity.total_elevation_gain > 0
-    ? activity.total_elevation_gain
-    : undefined;
-  // noinspection JSUnresolvedVariable
-  const result = {
-    name: activity.name,
-    date: dateTypeService.formatDateTimeString(activity.start_date, 'h:mm a'),
-    distance,
-    duration: dateTypeService.toDuration(activity.elapsed_time),
-    elevation,
-    heartRate: activity.average_heartrate,
-    icon: activityConversion.icon || 'burn'
-  };
+function parseActivitiesResponse({ stravaActivityItems, filter }) {
+  const activities = stravaActivityItems.map(transformers.toActivity);
+  const filteredResponse = filter.activity
+    ? activities.filter(({ activityKey }) => activityKey === filter.activity.activityKey)
+    : activities;
   logger.debug({
-    message: 'Converting activity to label',
-    event: 'stravaService.toLabel',
-    activity,
-    result
+    message: 'Returning parsed activities response',
+    event: 'parseActivitiesResponse',
+    activities: filteredResponse.length,
+    filter
   });
-  // noinspection JSValidateTypes
-  return result;
-};
-
-/**
- * Filters an activities response for Strava Activities with a given filter
- *
- * @param {Object[]} activities - The activities to be filtered
- * @param {Object} filter - The filter to apply to the response
- * @return {Object[]} - The filtered response
- */
-export const toGetActivitiesResponse = (activities, filter = {}) => {
-  if (filter.activity) {
-    activities = activities.filter(activity => convertActivity(activity.type)?.trackerActivityKey === filter.activity.activityUid);
-  }
-  return activities;
-};
+  return filteredResponse;
+}
 
 export default {
-  toLabel,
-  toGetActivitiesResponse
+  parseActivitiesResponse
 };

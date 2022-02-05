@@ -1,30 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { VStack, Center, Text, Heading, Select, Input, Button, Radio, Icon } from 'native-base';
+import moment from 'moment';
+
+import { VStack, Center, Text, Heading, Input, Button, Icon } from 'native-base';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { TimePicker } from 'react-native-simple-time-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { FormControlItem } from 'ui/components/forms';
-import StravaActivitySelection from './StravaActivitySelection';
+
 import activityClient from 'client/activity';
-import stravaClient from 'client/strava';
+import { isWeightLiftingActivity } from 'utils/activities';
 import { colors, activityFormStyles } from 'ui/styles';
-import { dateTypeService } from 'service/types';
+
+import Inputs from './inputs';
+import FormControlItem from '../FormControlItem';
 
 /**
- * Functional component containing activity upload form
+ * Activity input form component; provides ability to input activity information for a day
  *
- * @param props - Component props
- * @param props.activityOptions - Array of TrackerActivityOptionItems
- * @return {JSX.Element}
+ * @param {Object} props - Component props
+ * @param {Object[]} activityOptions - Options for activities to select from
+ * @param {Function} onActivitySelected - Callback to execute when an activity is selected
  * @constructor
  */
-export default function ActivityInputForm({ activityOptions }) {
-  /**
-   * Generates an empty state
-   *
-   * @return {Object}
-   */
-  const getDefaultState = () => {
+function ActivityInputForm({ activityOptions, onActivitySelected }) {
+  function getDefaultState() {
     return {
       formData: {
         date: new Date(),
@@ -34,7 +30,7 @@ export default function ActivityInputForm({ activityOptions }) {
           hours: 0
         },
         distance: '',
-        activity: '',
+        activity: {},
         stravaActivity: [],
         liftingGroup: '',
         notes: ''
@@ -48,200 +44,132 @@ export default function ActivityInputForm({ activityOptions }) {
       loading: false,
       error: null,
       uploaded: false,
-      activityOptions,
-      stravaActivities: []
+      liftingGroups: [],
+      stravaActivities: [],
+      activitySelectedHandler: null
     };
-  };
+  }
 
-  const [state, setState] = useState(getDefaultState());
+  const [ state, setState ] = useState(getDefaultState());
 
-  useEffect(async() => {
-    await setStravaActivities();
+  useEffect(() => {
+    setState({ ...state, activitySelectedHandler: onActivitySelected });
+  }, [onActivitySelected]);
+
+  useEffect(() => {
+    if (state.formData.activity && state.activitySelectedHandler) {
+      return state.activitySelectedHandler({
+        query: {
+          before: moment(state.formData.date).endOf('day').unix(),
+          after: moment(state.formData.date).startOf('day').unix()
+        },
+        filter: {
+          activity: state.formData.activity
+        }
+      })
+        .then(stravaActivities => setState({ ...state, stravaActivities }))
+        .catch(error => setState({ ...state, error }));
+    }
   }, [state.formData.date, state.formData.activity]);
 
-  /**
-   * Sets form data in state with given values
-   *
-   * @param {Object} values
-   */
-  const setFormData = (values) => {
+  function setFormData(data) {
     setState({
       ...state,
       formData: {
         ...state.formData,
-        ...values
+        ...data
       }
     });
-  };
+  }
 
-  /**
-   * Resets the state with optional given values
-   *
-   * @param {Object} values
-   */
-  const resetState = (values) => {
-    setState({ ...getDefaultState(), ...values });
-  };
+  function resetState(data) {
+    return setState({ ...getDefaultState(), ...data });
+  }
 
-  /**
-   * Retrieves Strava activities from the Strava client and updates the state with them
-   *
-   * @return {Promise<void>}
-   */
-  const setStravaActivities = async () => {
-    if (state.formData.activity) {
-      setState({
-        ...state,
-        stravaActivities: await stravaClient.getActivities({
-          query: {
-            before: dateTypeService.endOf(state.formData.date, 'day', 'unix'),
-            after: dateTypeService.startOf(state.formData.date, 'day', 'unix')
-          },
-          filter: {
-            activity: state.formData.activity
-          }
-        })
-      });
-    }
-  };
+  function activitySelected(activity) {
+    activity = JSON.parse(activity);
+    setState({
+      ...state,
+      display: {
+        duration: activity.duration,
+        distance: activity.distance,
+        liftingGroups: activity.activityKey === 'WL',
+        distanceUnits: activity.units || '',
+      },
+      formData: {
+        ...state.formData,
+        activity: activity,
+        duration: {
+          seconds: 0,
+          minutes: 0,
+          hours: 0
+        },
+        distance: '',
+        liftingGroup: '',
+        notes: ''
+      }
+    });
+  }
 
-  /**
-   * Returns true/false if form submission is enabled or not (either a lifting activity is selected, or non-lifting activity and duration and distance)
-   *
-   * @return {boolean}
-   */
-  const formSubmissionEnabled = () => {
+  function isFormSubmissionEnabled() {
     return state.formData?.activity
-      ? state.formData?.activity?.activityUid === 'WL'
-        ? state.formData?.liftingGroup
-        : (state.formData?.duration && state.formData?.distance)
+      ? state.formData.activity?.activityKey === 'WL'
+        ? state.formData.liftingGroup
+        : (state.formData.duration && state.formData.distance)
       : false;
-  };
+  }
 
-  /**
-   * Returns true/false if the form hasn't been modified on input
-   *
-   * @return {boolean}
-   */
-  const isFormEmpty = () => {
-    return !state.formData.activity
-      && !state.formData.notes
-  };
+  function isFormEmpty() {
+    return !state.formData.activity && !state.formData.notes;
+  }
 
-  /**
-   * Calls the activity client to upload form data
-   *
-   * @return {Promise<void>}
-   */
-  const submitFormData = async() => {
-    let error = undefined;
+  function submit() {
     setState({ ...state, loading: true });
-    await activityClient.upload(state.formData)
-      .catch(e => {
-        error = e;
+    return activityClient.uploadActivity(state.formData)
+      .then(() => {
+        resetState({ loading: false, uploaded: true });
+      })
+      .catch(error => {
+        resetState({ loading: false, error, uploaded: true });
       });
-    resetState({ loading: false, error, uploaded: true });
-  };
+  }
 
   return (
     <VStack space={2} px={5}>
       <Center>
         <Heading style={activityFormStyles.heading}>Log Activity</Heading>
-        <FormControlItem isRequired label={'Date'}>
-          <DateTimePicker
-            testID='dateTimePicker'
-            value={state.formData.date}
-            mode={'datetime'}
-            is24Hour={true}
-            display={'inline'}
-            themeVariant={'dark'}
-            onChange={(event, date) => setFormData({ date })}
-          />
-        </FormControlItem>
-        <FormControlItem isRequired label={'Activity'}>
-          <Select
-            selectedValue={state.formData.activity}
-            color={colors.primary}
-            onValueChange={activity => setState({
-              ...state,
-              display: {
-                duration: activity.duration,
-                distance: activity.distance,
-                liftingGroups: activity.activityUid === 'WL',
-                distanceUnits: activity.units || "",
-              },
-              formData: {
-                ...state.formData,
-                activity,
-                duration: {
-                  seconds: 0,
-                  minutes: 0,
-                  hours: 0
-                },
-                distance: '',
-                liftingGroup: '',
-                notes: ''
-              }
-            })}
-          >
-            {
-              activityOptions.map(activity => <Select.Item label={activity.label} value={activity} key={activity.id} />)
-            }
-          </Select>
-        </FormControlItem>
-        {
-          state.display.liftingGroups &&
-          <FormControlItem isRequired label={'Muscle Group'}>
-            <Select
-              selectedValue={state.formData.liftingGroup}
-              color={colors.primary}
-              onValueChange={liftingGroup => setFormData({ liftingGroup })}
-            >
-              {
-                [ ...activityOptions ].find(activity => activity.activityUid === 'WL')?.groups?.map(group => <Select.Item label={group.label} value={group.uid} key={group.uid} />)
-              }
-            </Select>
-          </FormControlItem>
-        }
-        {
-          state.stravaActivities.length > 0 &&
-          <FormControlItem label={'Attach Strava Activity:'}>
-            <Radio.Group
-              value={state.formData.stravaActivity}
-              onChange={value => setFormData({ stravaActivity: value || null })}
-              size={'lg'}
-            >
-              <StravaActivitySelection activities={state.stravaActivities} />
-            </Radio.Group>
-          </FormControlItem>
-        }
-        {
-          state.display.duration &&
-          <FormControlItem isRequired label={'Duration'}>
-            <TimePicker
-              value={{ ...state.formData.duration }}
-              onChange={({ seconds, minutes, hours }) => setFormData({ duration: { seconds, minutes, hours } })}
-              textColor={colors.primary}
-              pickerShows={['hours', 'minutes', 'seconds']}
-              hoursUnit={'h'}
-              minutesUnit={'m'}
-              secondsUnit={'s'}
-            />
-          </FormControlItem>
-        }
-        {
-          state.display.distance &&
-          <FormControlItem isRequired label={'Distance'}>
-            <Input
-              value={state.formData.distance}
-              onChangeText={distance => setFormData({ distance })}
-              InputRightElement={
-                <Text style={{ color: colors.primary }}>{state.display.distanceUnits} </Text>
-              }
-              keyboardType={'numeric'}
-            />
-          </FormControlItem>
-        }
+        <Inputs.Date
+          date={state.formData.date}
+          onChange={date => setFormData({ date })}
+        />
+        <Inputs.Activity
+          options={activityOptions}
+          activity={JSON.stringify(state.formData.activity)}
+          onValueChange={activitySelected}
+        />
+        <Inputs.LiftingGroup
+          liftingGroup={state.formData.liftingGroup}
+          options={activityOptions?.find(isWeightLiftingActivity)?.groups || []}
+          onValueChange={liftingGroup => setFormData({ liftingGroup })}
+          hidden={!state.display.liftingGroups}
+        />
+        <Inputs.StravaActivities
+          activities={state.stravaActivities}
+          options={activityOptions?.find(isWeightLiftingActivity)?.groups || []}
+          onChange={stravaActivity => setFormData({ stravaActivity })}
+          hidden={state.stravaActivities.length < 1}
+        />
+        <Inputs.Duration
+          duration={state.formData.duration}
+          onChange={duration => setFormData({ duration })}
+          hidden={!state.display.duration}
+        />
+        <Inputs.Distance
+          distance={state.formData.distance}
+          onChange={distance => setFormData({ distance })}
+          units={state.display.distanceUnits}
+          hidden={!state.display.distance}
+        />
         <FormControlItem label={'Notes'}>
           <Input
             value={state.formData.notes}
@@ -250,9 +178,9 @@ export default function ActivityInputForm({ activityOptions }) {
           />
         </FormControlItem>
         <Button
-          isDisabled={!formSubmissionEnabled()}
+          isDisabled={!isFormSubmissionEnabled()}
           isLoading={state.loading}
-          onPress={() => submitFormData()}
+          onPress={submit}
           startIcon={<Icon as={FontAwesome5} name={'upload'} color={colors.primary} size={'xs'} />}
           style={{ marginTop: 5 }}
           colorScheme={'secondary'}
@@ -262,7 +190,7 @@ export default function ActivityInputForm({ activityOptions }) {
         {
           !state.loading && state.error && state.uploaded &&
           <Text style={{ justifyContent: 'center', color: colors.primary, marginTop: 5 }}>
-            Upload failed due to error: { state.error }
+            Upload failed due to error
           </Text>
         }
         {
@@ -275,3 +203,5 @@ export default function ActivityInputForm({ activityOptions }) {
     </VStack>
   );
 }
+
+export default ActivityInputForm;

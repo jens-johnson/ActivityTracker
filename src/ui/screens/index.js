@@ -1,11 +1,9 @@
-import HomeScreen from './HomeScreen';
-import LogActivityScreen from './LogActivityScreen';
-import OverviewScreen from './OverviewScreen';
+import Home from './Home';
+import LogActivity from './LogActivity';
+import Overview from './Overview';
 
-const Screens = {
-  Home: HomeScreen,
-  LogActivity: LogActivityScreen,
-  Overview: OverviewScreen
+export default {
+  Home,
+  LogActivity,
+  Overview
 };
-
-export default Screens;

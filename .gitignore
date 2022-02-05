@@ -1,7 +1,10 @@
+# Node/NPM
 node_modules/
+npm-debug.*
+
+# Expo
 .expo/
 .expo-shared/
-npm-debug.*
 *.jks
 *.p8
 *.p12
@@ -9,10 +12,12 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+
+# Environment variables
 .env
 
-# intelliJ
+# IntelliJ
 .idea/
 
-# macOS
+# MacOS
 .DS_Store

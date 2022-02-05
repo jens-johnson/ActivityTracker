@@ -1,7 +1,5 @@
-import ActivitySummary from './ActivitySummary';
-import ActivitiesCalendar from './ActivitiesCalendar';
+import ActivitySummary from './summary';
 
 export {
-  ActivitySummary,
-  ActivitiesCalendar
+  ActivitySummary
 };

@@ -1,0 +1,19 @@
+{
+  "activity": {
+    "summaries": {
+      "activityCategoryLimit": 4,
+      "dailyActivityThresholdFactor": 1.4
+    }
+  },
+  "overview": {
+    "maxMonthRange": 12
+  },
+  "strava": {
+    "auth": {
+      "url": "https://www.strava.com/oauth/token"
+    },
+    "api": {
+      "url": "https://www.strava.com/api/v3"
+    }
+  }
+}
