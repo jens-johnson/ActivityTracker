@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView } from 'native-base';
 
@@ -8,7 +9,12 @@ import { defaultStyles } from 'ui/styles';
 
 import ActivityInputForm from 'ui/components/forms/activity';
 
-export default function LogActivityScreen() {
+/**
+ * Component for activity logging screen; provides activity input form
+ *
+ * @constructor
+ */
+function LogActivityScreen() {
   function getDefaultState() {
     return {
       activityOptions: [],
@@ -41,3 +47,5 @@ export default function LogActivityScreen() {
     </SafeAreaView>
   )
 }
+
+export default LogActivityScreen;

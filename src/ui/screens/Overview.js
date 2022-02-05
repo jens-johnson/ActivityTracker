@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import moment from 'moment';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScrollView, Heading } from 'native-base';
-import { useIsFocused } from '@react-navigation/native';
 
 import activityClient from 'client/activity';
-import { ActivitySummary } from 'ui/components/overview';
-
 import { defaultStyles, overviewScreenStyles } from 'ui/styles';
 
+import { ActivitySummary } from 'ui/components/overview';
+
+/**
+ * Default overview screen; provides summary overview of activities
+ *
+ * @constructor
+ */
 function OverviewScreen() {
   const isFocused = useIsFocused();
+
   const [state, setState] = useState({
     summaries: [],
     activitiesForThisPeriod: [],
     error: undefined
   });
+
   useEffect(() => {
     let isMounted = true;
     activityClient.getActivitySummaries()
@@ -29,6 +37,7 @@ function OverviewScreen() {
       .catch(error => isMounted ? setState({ ...state, activitiesForThisPeriod: [], error }) : null);
     return () => { isMounted = false; }
   }, [ isFocused ]);
+
   return (
     <SafeAreaView style={defaultStyles.page}>
       <Heading fontSize={'4xl'} mt={2} mb={5} style={overviewScreenStyles.heading}>Activities Overview</Heading>

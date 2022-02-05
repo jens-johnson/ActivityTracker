@@ -58,7 +58,8 @@ function toActivityOption(item) {
     distance,
     duration,
     groups,
-    label
+    label,
+    units: convert(activityKey)?.units
   };
 }
 

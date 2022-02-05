@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 
-import { VStack, Center, Text, Heading, Select, Input, Button, Radio, Icon } from 'native-base';
+import { VStack, Center, Text, Heading, Input, Button, Icon } from 'native-base';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { TimePicker } from 'react-native-simple-time-picker';
-import DateTimePicker from '@react-native-community/datetimepicker';
 
 import activityClient from 'client/activity';
 import { isWeightLiftingActivity } from 'utils/activities';
+import { colors, activityFormStyles } from 'ui/styles';
 
 import Inputs from './inputs';
 import FormControlItem from '../FormControlItem';
-import StravaActivitySelection from './inputs/StravaActivitySelection';
 
-import { colors, activityFormStyles } from 'ui/styles';
-
+/**
+ * Activity input form component; provides ability to input activity information for a day
+ *
+ * @param {Object} props - Component props
+ * @param {Object[]} activityOptions - Options for activities to select from
+ * @param {Function} onActivitySelected - Callback to execute when an activity is selected
+ * @constructor
+ */
 function ActivityInputForm({ activityOptions, onActivitySelected }) {
-  /**
-   * Returns a default state
-   *
-   * @return {Object} - The default state
-   */
   function getDefaultState() {
     return {
       formData: {
@@ -73,11 +72,6 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
     }
   }, [state.formData.date, state.formData.activity]);
 
-  /**
-   * Updates form data in state
-   *
-   * @param {Object} data
-   */
   function setFormData(data) {
     setState({
       ...state,
@@ -88,16 +82,12 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
     });
   }
 
-  /**
-   * Resets state with optional data
-   *
-   * @param {Object} data
-   */
   function resetState(data) {
     return setState({ ...getDefaultState(), ...data });
   }
 
   function activitySelected(activity) {
+    activity = JSON.parse(activity);
     setState({
       ...state,
       display: {
@@ -108,7 +98,7 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
       },
       formData: {
         ...state.formData,
-        activity: JSON.parse(activity),
+        activity: activity,
         duration: {
           seconds: 0,
           minutes: 0,
@@ -171,7 +161,7 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
         />
         <Inputs.Duration
           duration={state.formData.duration}
-          onChange={stravaActivity => setFormData({ stravaActivity })}
+          onChange={duration => setFormData({ duration })}
           hidden={!state.display.duration}
         />
         <Inputs.Distance
