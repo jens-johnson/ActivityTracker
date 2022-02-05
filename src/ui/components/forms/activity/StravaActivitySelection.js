@@ -60,7 +60,7 @@ function StravaActivitySelection({ activity }) {
               elevation &&
               <HStack>
                 <Icon as={FontAwesome5} name={'mountain'} color={colors.secondary} size={'xs'} />
-                <Text color={colors.primary} mx={2} fontSize={'xs'}>{ elevation } ft</Text>
+                <Text color={colors.primary} mx={2} fontSize={'xs'}>{ elevation }</Text>
               </HStack>
             }
           </VStack>

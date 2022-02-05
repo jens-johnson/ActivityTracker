@@ -43,7 +43,6 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
       loading: false,
       error: null,
       uploaded: false,
-      options: [],
       liftingGroups: [],
       stravaActivities: [],
       activitySelectedHandler: null
@@ -51,10 +50,6 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
   }
 
   const [ state, setState ] = useState(getDefaultState());
-
-  useEffect(async() => {
-    setState({ ...state, options: activityOptions });
-  }, [activityOptions]);
 
   useEffect(() => {
     setState({ ...state, activitySelectedHandler: onActivitySelected });
@@ -162,22 +157,19 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
             onChange={(_, date) => setFormData({ date })}
           />
         </FormControlItem>
-        {
-          state.options.length > 1 &&
-          <FormControlItem isRequired label={'Activity'}>
-            <Select
-              selectedValue={JSON.stringify(state.formData.activity)}
-              color={colors.primary}
-              onValueChange={activitySelected}
-            >
-              {
-                state.options.map(activity => (
-                  <Select.Item label={activity.label} value={JSON.stringify(activity)} key={activity.activityKey} />
-                ))
-              }
-            </Select>
-          </FormControlItem>
-        }
+        <FormControlItem isRequired label={'Activity'}>
+          <Select
+            selectedValue={JSON.stringify(state.formData.activity)}
+            color={colors.primary}
+            onValueChange={activitySelected}
+          >
+            {
+              activityOptions.map(activity => (
+                <Select.Item label={activity.label} value={JSON.stringify(activity)} key={activity.activityKey} />
+              ))
+            }
+          </Select>
+        </FormControlItem>
         {
           state.display.liftingGroups &&
           <FormControlItem isRequired label={'Muscle Group'}>
@@ -198,13 +190,14 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
           state.stravaActivities.length > 0 &&
           <FormControlItem label={'Attach Strava Activity:'}>
             <Radio.Group
+              name={'Foo'}
               value={state.stravaActivities[0].id}
               onChange={stravaActivity => setFormData({ stravaActivity })}
               size={'lg'}
             >
               {
                 state.stravaActivities.map(activity => (
-                  <StravaActivitySelection activity={activity} />
+                  <StravaActivitySelection activity={activity} key={activity.id} />
                 ))
               }
             </Radio.Group>
