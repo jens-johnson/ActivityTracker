@@ -7,9 +7,11 @@ import { TimePicker } from 'react-native-simple-time-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 import activityClient from 'client/activity';
+import { isWeightLiftingActivity } from 'utils/activities';
 
+import Inputs from './inputs';
 import FormControlItem from '../FormControlItem';
-import StravaActivitySelection from './StravaActivitySelection';
+import StravaActivitySelection from './inputs/StravaActivitySelection';
 
 import { colors, activityFormStyles } from 'ui/styles';
 
@@ -57,7 +59,7 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
 
   useEffect(() => {
     if (state.formData.activity && state.activitySelectedHandler) {
-      state.activitySelectedHandler({
+      return state.activitySelectedHandler({
         query: {
           before: moment(state.formData.date).endOf('day').unix(),
           after: moment(state.formData.date).startOf('day').unix()
@@ -146,90 +148,38 @@ function ActivityInputForm({ activityOptions, onActivitySelected }) {
     <VStack space={2} px={5}>
       <Center>
         <Heading style={activityFormStyles.heading}>Log Activity</Heading>
-        <FormControlItem isRequired label={'Date'}>
-          <DateTimePicker
-            testID='dateTimePicker'
-            value={state.formData.date}
-            mode={'datetime'}
-            is24Hour={true}
-            display={'inline'}
-            themeVariant={'dark'}
-            onChange={(_, date) => setFormData({ date })}
-          />
-        </FormControlItem>
-        <FormControlItem isRequired label={'Activity'}>
-          <Select
-            selectedValue={JSON.stringify(state.formData.activity)}
-            color={colors.primary}
-            onValueChange={activitySelected}
-          >
-            {
-              activityOptions.map(activity => (
-                <Select.Item label={activity.label} value={JSON.stringify(activity)} key={activity.activityKey} />
-              ))
-            }
-          </Select>
-        </FormControlItem>
-        {
-          state.display.liftingGroups &&
-          <FormControlItem isRequired label={'Muscle Group'}>
-            <Select
-              selectedValue={state.formData.liftingGroup}
-              color={colors.primary}
-              onValueChange={liftingGroup => setFormData({ liftingGroup })}
-            >
-              {
-                state.liftingGroups.map(group => (
-                  <Select.Item label={group.label} value={group.uid} key={group.uid} />
-                ))
-              }
-            </Select>
-          </FormControlItem>
-        }
-        {
-          state.stravaActivities.length > 0 &&
-          <FormControlItem label={'Attach Strava Activity:'}>
-            <Radio.Group
-              name={'Foo'}
-              value={state.stravaActivities[0].id}
-              onChange={stravaActivity => setFormData({ stravaActivity })}
-              size={'lg'}
-            >
-              {
-                state.stravaActivities.map(activity => (
-                  <StravaActivitySelection activity={activity} key={activity.id} />
-                ))
-              }
-            </Radio.Group>
-          </FormControlItem>
-        }
-        {
-          state.display.duration &&
-          <FormControlItem isRequired label={'Duration'}>
-            <TimePicker
-              value={{ ...state.formData.duration }}
-              onChange={duration => setFormData({ duration })}
-              textColor={colors.primary}
-              pickerShows={['hours', 'minutes', 'seconds']}
-              hoursUnit={'h'}
-              minutesUnit={'m'}
-              secondsUnit={'s'}
-            />
-          </FormControlItem>
-        }
-        {
-          state.display.distance &&
-          <FormControlItem isRequired label={'Distance'}>
-            <Input
-              value={state.formData.distance}
-              onChangeText={distance => setFormData({ distance })}
-              InputRightElement={
-                <Text style={{ color: colors.primary }}>{state.display.distanceUnits} </Text>
-              }
-              keyboardType={'numeric'}
-            />
-          </FormControlItem>
-        }
+        <Inputs.Date
+          date={state.formData.date}
+          onChange={date => setFormData({ date })}
+        />
+        <Inputs.Activity
+          options={activityOptions}
+          activity={JSON.stringify(state.formData.activity)}
+          onValueChange={activitySelected}
+        />
+        <Inputs.LiftingGroup
+          liftingGroup={state.formData.liftingGroup}
+          options={activityOptions?.find(isWeightLiftingActivity)?.groups || []}
+          onValueChange={liftingGroup => setFormData({ liftingGroup })}
+          hidden={!state.display.liftingGroups}
+        />
+        <Inputs.StravaActivities
+          activities={state.stravaActivities}
+          options={activityOptions?.find(isWeightLiftingActivity)?.groups || []}
+          onChange={stravaActivity => setFormData({ stravaActivity })}
+          hidden={state.stravaActivities.length < 1}
+        />
+        <Inputs.Duration
+          duration={state.formData.duration}
+          onChange={stravaActivity => setFormData({ stravaActivity })}
+          hidden={!state.display.duration}
+        />
+        <Inputs.Distance
+          distance={state.formData.distance}
+          onChange={distance => setFormData({ distance })}
+          units={state.display.distanceUnits}
+          hidden={!state.display.distance}
+        />
         <FormControlItem label={'Notes'}>
           <Input
             value={state.formData.notes}
