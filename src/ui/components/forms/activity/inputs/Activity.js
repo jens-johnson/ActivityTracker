@@ -1,9 +1,20 @@
 import React from 'react';
+
 import { Select } from 'native-base';
+
 import { colors } from 'ui/styles';
 
 import FormControlItem from '../../FormControlItem';
 
+/**
+ * Activity input; provides selection over activity options
+ *
+ * @param {Object} props - Component props
+ * @param {string} props.activity - The currently selected option (stringified from JSON)
+ * @param {Function} props.onValueChange - Callback to execute when a new activity is selected
+ * @param {Object[]} props.options - Activity options to populate the <Select /> component
+ * @constructor
+ */
 function Activity({ activity, onValueChange, options }) {
   return (
     <FormControlItem isRequired label={'Activity'}>

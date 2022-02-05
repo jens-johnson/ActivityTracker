@@ -1,11 +1,18 @@
 import React from 'react';
+
 import { Box, Center, HStack, Icon, Progress, Text } from 'native-base';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import types from 'utils/types';
-
 import { colors } from 'ui/styles';
 
+/**
+ * Functional component representing a summary item with progress bars for activity summaries
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.summary - Data describing the summary period including number of days, activities completed, etc.
+ * @constructor
+ */
 function SummaryItem({ summary }) {
   const {
     id,

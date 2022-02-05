@@ -1,11 +1,18 @@
 import React from 'react';
+
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Radio, Text, Container, HStack, VStack, Icon } from 'native-base';
 
 import types from 'utils/types';
-
 import { colors } from 'ui/styles';
 
+/**
+ * Strava activity selection radio item; describes a Strava activity
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.activity - The Strava activity to be transformed
+ * @constructor
+ */
 function StravaActivitySelection({ activity }) {
   const {
     timeOfDay,
